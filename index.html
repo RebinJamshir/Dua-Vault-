@@ -22,7 +22,6 @@
             margin: 0 auto;
             padding: 0 20px;
         }
-        /* Header */
         .header {
             background: white;
             border-bottom: 1px solid #e5e7eb;
@@ -60,7 +59,6 @@
         .header-btn:hover {
             background: #f3f4f6;
         }
-        /* Search Bar */
         .search-container {
             margin: 20px 0;
             position: relative;
@@ -85,7 +83,6 @@
             transform: translateY(-50%);
             font-size: 18px;
         }
-        /* Main Content */
         .content {
             padding: 32px 20px;
             min-height: calc(100vh - 200px);
@@ -150,7 +147,6 @@
             font-size: 18px;
             margin-bottom: 10px;
         }
-        /* Detail View */
         .detail-view {
             display: none;
             position: fixed;
@@ -265,7 +261,6 @@
         .btn-danger:hover {
             background: #fca5a5;
         }
-        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -368,7 +363,6 @@
             gap: 12px;
             margin-top: 20px;
         }
-        /* FAB - Floating Action Button */
         .fab {
             position: fixed;
             bottom: 32px;
@@ -401,7 +395,6 @@
                 font-size: 28px;
             }
         }
-        /* Responsive */
         @media (max-width: 640px) {
             .dua-list {
                 grid-template-columns: 1fr;
@@ -422,7 +415,6 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header" id="mainHeader">
         <div class="header-content">
             <h1>📿 My Dua Library</h1>
@@ -431,17 +423,12 @@
             </div>
         </div>
     </div>
-    <!-- Main Content -->
+
     <div class="content" id="mainContent">
         <div class="container">
             <div class="search-container">
                 <span class="search-icon">🔍</span>
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    id="mainSearchInput" 
-                    placeholder="Search duas..."
-                >
+                <input type="text" class="search-input" id="mainSearchInput" placeholder="Search duas...">
             </div>
             <div class="dua-list" id="duaList">
                 <div class="empty-state">
@@ -450,7 +437,7 @@
             </div>
         </div>
     </div>
-    <!-- Detail View -->
+
     <div class="detail-view" id="detailView">
         <div class="detail-header">
             <h2 id="detailTitle"></h2>
@@ -474,7 +461,7 @@
             </div>
         </div>
     </div>
-    <!-- Add/Edit Modal -->
+
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
@@ -498,7 +485,7 @@
                         <option>Family</option>
                         <option>Studies</option>
                         <option>Travel</option>
-                        <option>Marriage & Relationships</option>
+                        <option>Marriage &amp; Relationships</option>
                         <option>Other</option>
                     </select>
                 </div>
@@ -521,14 +508,15 @@
             </form>
         </div>
     </div>
-    <!-- Floating Action Button -->
+
     <button class="fab" id="addBtn">➕</button>
+
     <script>
-        // Database
         class DuaDB {
             constructor() {
                 this.db = null;
             }
+
             async init() {
                 if (this.db) return true;
                 return new Promise((resolve) => {
@@ -554,6 +542,7 @@
                     }
                 });
             }
+
             async getAll() {
                 if (!this.db) return [];
                 return new Promise((resolve) => {
@@ -568,6 +557,7 @@
                     }
                 });
             }
+
             async add(dua) {
                 if (!this.db) return dua;
                 const id = dua.id || Date.now().toString();
@@ -584,6 +574,7 @@
                     }
                 });
             }
+
             async update(id, dua) {
                 if (!this.db) return { ...dua, id };
                 return new Promise((resolve) => {
@@ -598,6 +589,7 @@
                     }
                 });
             }
+
             async delete(id) {
                 if (!this.db) return;
                 return new Promise((resolve) => {
@@ -629,27 +621,51 @@
                 reference: 'Required in Salah (Final Tashahhud) | Highly Recommended Throughout the Day'
             },
             {
+                id: 'forgiveness-all-sins',
+                title: 'Forgiveness for All Sins',
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ، دِقَّهُ وَجِلَّهُ، وَأَوَّلَهُ وَآخِرَهُ، وَعَلَانِيَتَهُ وَسِرَّهُ',
+                translation: 'O Allah! Forgive all my sins—the small and the great, the first and the last, the open and the secret.',
+                reference: ''
+            },
+            {
+                id: 'dua-of-adam',
+                title: "Du'a of Adam (AS)",
+                category: 'Daily',
+                arabic: 'رَبَّنَا ظَلَمْنَا أَنْفُسَنَا وَإِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ',
+                translation: 'Our Lord, we have wronged ourselves, and if You do not forgive us and have mercy upon us, we will surely be among the losers.',
+                reference: ''
+            },
+            {
+                id: 'sayyidul-istighfar-master',
+                title: 'Sayyidul Istighfar (The Master of Seeking Forgiveness)',
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
+                translation: 'O Allah, You are my Lord. None has the right to be worshipped except You. You created me and I am Your servant. I uphold Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I confess my sins. So forgive me, for none forgives sins except You.',
+                reference: ''
+            },
+            {
                 id: 'dua-marriage',
-                title: 'Personal Du\'a for Marrying Someone You Love',
+                title: "Personal Du'a for Marrying Someone You Love",
                 category: 'Marriage & Relationships',
                 arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ أَنْ تَجْعَلَ (اسمها) زَوْجَةً لِي، إِنْ كَانَ ذَلِكَ خَيْرًا لِي فِي دِينِي وَدُنْيَايَ وَآخِرَتِي، وَيَسِّرْ لَنَا الزَّوَاجَ، وَبَارِكْ لَنَا فِيهِ.',
                 translation: 'O Allah, I ask You to make (her name) my wife, if that is good for my religion, my worldly life, and my Hereafter. Make our marriage easy for us and bless it.',
-                reference: 'Personal Du\'a. Notes: Replace (اسمها) with the person\'s name.'
+                reference: "Personal Du'a. Notes: Replace (اسمها) with the person's name."
             },
             {
                 id: 'simple-istighfar',
-                title: 'Simple Du\'a for Forgiveness',
+                title: "Simple Du'a for Forgiveness",
                 category: 'Repentance & Forgiveness',
                 arabic: 'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
-                translation: '"I seek Allah\'s forgiveness and repent to Him."',
+                translation: 'I seek Allah\'s forgiveness and repent to Him.',
                 reference: 'Authentic Sunnah'
             },
             {
                 id: 'prophetic-repentance',
-                title: 'Allahummaghfir Lī wa Tub \'Alayya',
+                title: "Allahummaghfir Lī wa Tub 'Alayya",
                 category: 'Repentance & Forgiveness',
                 arabic: 'اللَّهُمَّ اغْفِرْ لِي وَتُبْ عَلَيَّ، إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ',
-                translation: '"O Allah, forgive me and accept my repentance. Indeed, You are the Accepter of Repentance, the Most Merciful."',
+                translation: 'O Allah, forgive me and accept my repentance. Indeed, You are the Accepter of Repentance, the Most Merciful.',
                 reference: 'Authentic Sunnah'
             },
             {
@@ -657,7 +673,7 @@
                 title: 'Sayyid al-Istighfar (Chief Supplication for Forgiveness)',
                 category: 'Repentance & Forgiveness',
                 arabic: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلقتني وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
-                translation: '"O Allah, You are my Lord. There is no god except You. You created me, and I am Your servant. I uphold Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I acknowledge my sins, so forgive me, for none forgives sins except You."',
+                translation: 'O Allah, You are my Lord. There is no god except You. You created me, and I am Your servant. I uphold Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I acknowledge my sins, so forgive me, for none forgives sins except You.',
                 reference: 'Sahih al-Bukhari — Sayyid al-Istighfar'
             }
         ];
@@ -670,9 +686,9 @@
 
         async function loadDuas(dbReady) {
             let data = [];
+
             if (dbReady) {
                 data = await db.getAll();
-                // Add samples if DB is empty
                 if (data.length === 0) {
                     for (const sample of SAMPLE_DUAS) {
                         await db.add(sample);
@@ -680,8 +696,7 @@
                     data = await db.getAll();
                 }
             }
-            
-            // If data is still empty (DB failed or blocked), use samples in memory
+
             if (data.length === 0) {
                 data = SAMPLE_DUAS;
             }
@@ -693,14 +708,15 @@
         function renderDuas(duas) {
             const duaList = document.getElementById('duaList');
             if (duas.length === 0) {
-                duaList.innerHTML = `<div class="empty-state">No duas found. Click + to add one.</div>`;
+                duaList.innerHTML = '<div class="empty-state">No duas found. Click + to add one.</div>';
                 return;
             }
+
             duaList.innerHTML = duas.map((dua, idx) => `
                 <div class="dua-card" onclick="viewDua('${dua.id}')" style="animation-delay: ${idx * 50}ms">
                     <div class="dua-category">${dua.category || 'Daily'}</div>
                     <div class="dua-title">${dua.title}</div>
-                    <div class="dua-preview">${dua.translation.replace(/\n/g, " | ")}</div>
+                    <div class="dua-preview">${dua.translation.replace(/\n/g, ' | ')}</div>
                 </div>
             `).join('');
         }
@@ -708,6 +724,7 @@
         function viewDua(id) {
             currentDua = allDuas.find(d => d.id === id);
             if (!currentDua) return;
+
             document.getElementById('detailTitle').textContent = currentDua.title;
             document.getElementById('detailTitleFull').textContent = currentDua.title;
             document.getElementById('detailCategory').textContent = currentDua.category || 'Daily';
@@ -754,8 +771,8 @@
         async function deleteDua() {
             if (!currentDua) return;
             if (!confirm('Delete this dua?')) return;
+
             await db.delete(currentDua.id);
-            // Update local state if DB failed
             allDuas = allDuas.filter(d => d.id !== currentDua.id);
             renderDuas(allDuas);
             closeDetail();
@@ -763,6 +780,7 @@
 
         async function handleFormSubmit(e) {
             e.preventDefault();
+
             const dua = {
                 title: document.getElementById('formTitle').value,
                 category: document.getElementById('formCategory').value,
@@ -770,6 +788,7 @@
                 translation: document.getElementById('formTranslation').value,
                 reference: document.getElementById('formReference').value
             };
+
             if (editingId) {
                 await db.update(editingId, dua);
                 allDuas = allDuas.map(d => d.id === editingId ? { ...dua, id: editingId } : d);
@@ -777,6 +796,7 @@
                 const added = await db.add(dua);
                 allDuas.push(added);
             }
+
             renderDuas(allDuas);
             closeModal();
         }
@@ -813,5 +833,5 @@
 
         init();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a12dca1f1cf3d96b',t:'MTc4MjY2MTIyMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a13814e51a47d96b',t:'MTc4Mjc2OTE0Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
