@@ -6,73 +6,450 @@
     <title>My Dua Library</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%); color: #1a1a1a; line-height: 1.6; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-        .header { background: white; border-bottom: 1px solid #e5e7eb; padding: 24px 20px; position: sticky; top: 0; z-index: 40; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto; }
-        .header h1 { font-size: 32px; font-weight: 700; color: #0d9488; }
-        .header-buttons { display: flex; gap: 10px; }
-        .header-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s; }
-        .header-btn:hover { background: #f3f4f6; }
-        .search-container { margin: 20px 0; position: relative; }
-        .search-input { width: 100%; padding: 12px 16px 12px 40px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; font-family: 'Inter', sans-serif; transition: border-color 0.2s; }
-        .search-input:focus { outline: none; border-color: #0d9488; }
-        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; }
-        .content { padding: 32px 20px; min-height: calc(100vh - 200px); }
-        .dua-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .dua-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.2s; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
-        .dua-card:hover { box-shadow: 0 10px 25px rgba(13, 148, 136, 0.1); border-color: #0d9488; transform: translateY(-4px); }
-        .dua-category { font-size: 12px; color: #0d9488; font-weight: 600; margin-bottom: 8px; }
-        .dua-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
-        .dua-preview { font-size: 14px; color: #6b7280; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; }
-        .empty-state { text-align: center; padding: 60px 20px; color: #9ca3af; }
-        .empty-state-text { font-size: 18px; margin-bottom: 10px; }
-        .detail-view { display: none; position: fixed; inset: 0; background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%); z-index: 50; overflow-y: auto; }
-        .detail-view.active { display: block; }
-        .detail-header { background: white; border-bottom: 1px solid #e5e7eb; padding: 16px 20px; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; }
-        .detail-header h2 { font-size: 22px; font-weight: 700; color: #1a1a1a; flex: 1; }
-        .detail-content { padding: 32px 20px; max-width: 800px; margin: 0 auto; }
-        .detail-box { background: white; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; margin-bottom: 24px; }
-        .detail-category { font-size: 12px; color: #0d9488; font-weight: 600; margin-bottom: 16px; }
-        .detail-title { font-size: 28px; font-weight: 700; color: #1a1a1a; margin-bottom: 24px; }
-        .arabic-text { font-family: 'Noto Naskh Arabic', serif; font-size: 28px; line-height: 1.8; text-align: center; background: #f9fafb; padding: 24px; border-radius: 8px; margin-bottom: 24px; direction: rtl; color: #1a1a1a; white-space: pre-wrap; }
-        .translation-text { font-size: 16px; line-height: 1.8; color: #4b5563; margin-bottom: 20px; white-space: pre-wrap; }
-        .reference-text { font-size: 13px; color: #6b7280; font-style: italic; white-space: pre-wrap; }
-        .detail-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-        .btn-primary { background: #0d9488; color: white; }
-        .btn-primary:hover { background: #0f766e; }
-        .btn-secondary { background: #f3f4f6; color: #1a1a1a; border: 1px solid #e5e7eb; }
-        .btn-secondary:hover { background: #e5e7eb; }
-        .btn-danger { background: #fecaca; color: #991b1b; }
-        .btn-danger:hover { background: #fca5a5; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 100; }
-        .modal-overlay.active { display: flex; align-items: flex-end; justify-content: center; }
-        @media (min-width: 768px) { .modal-overlay.active { align-items: center; } }
-        .modal { background: white; width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
-        @media (min-width: 768px) { .modal { border-radius: 12px; max-height: none; } }
-        .modal-header { background: white; padding: 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
-        .modal-header h3 { font-size: 20px; font-weight: 700; color: #1a1a1a; }
-        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 0; }
-        .modal-body { padding: 24px; display: grid; gap: 16px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-label { font-size: 14px; font-weight: 600; color: #1a1a1a; }
-        .form-input, .form-textarea, .form-select { padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; transition: border-color 0.2s; }
-        .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: #0d9488; }
-        .form-textarea { resize: vertical; min-height: 100px; font-family: 'Inter', sans-serif; }
-        .form-textarea.arabic { font-family: 'Noto Naskh Arabic', serif; font-size: 18px; direction: rtl; text-align: right; }
-        .form-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .fab { position: fixed; bottom: 32px; right: 32px; width: 64px; height: 64px; background: #0d9488; color: white; border: none; border-radius: 50%; font-size: 32px; cursor: pointer; box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3); transition: all 0.2s; z-index: 40; }
-        .fab:hover { background: #0f766e; transform: scale(1.1); }
-        .fab:active { transform: scale(0.95); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg-main: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+            --bg-surface: #ffffff;
+            --bg-subtle: #f9fafb;
+            --bg-muted: #f3f4f6;
+            --text-main: #1a1a1a;
+            --text-soft: #4b5563;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --accent: #0d9488;
+            --accent-hover: #0f766e;
+            --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 10px 25px rgba(13, 148, 136, 0.1);
+            --danger-bg: #fecaca;
+            --danger-text: #991b1b;
+            --danger-hover: #fca5a5;
+            --font-ui: 'Inter', sans-serif;
+            --font-arabic: 'Noto Naskh Arabic', serif;
+        }
+        body.dark-theme {
+            --bg-main: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            --bg-surface: #111827;
+            --bg-subtle: #1f2937;
+            --bg-muted: #1f2937;
+            --text-main: #f8fafc;
+            --text-soft: #d1d5db;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #2dd4bf;
+            --accent-hover: #14b8a6;
+            --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.35);
+            --shadow-card: 0 14px 30px rgba(0, 0, 0, 0.35);
+            --danger-bg: #7f1d1d;
+            --danger-text: #fecaca;
+            --danger-hover: #991b1b;
+            --font-ui: 'Inter', sans-serif;
+            --font-arabic: 'Noto Naskh Arabic', serif;
+        }
+        body {
+            font-family: var(--font-ui);
+            background: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 24px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0d9488;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .header-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .header-btn:hover {
+            background: #f3f4f6;
+        }
+        .search-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #0d9488;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+        }
+        .content {
+            padding: 32px 20px;
+            min-height: calc(100vh - 200px);
+        }
+        .dua-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .dua-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .dua-card:hover {
+            box-shadow: 0 10px 25px rgba(13, 148, 136, 0.1);
+            border-color: #0d9488;
+            transform: translateY(-4px);
+        }
+        .dua-category {
+            font-size: 12px;
+            color: #0d9488;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .dua-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        .dua-preview {
+            font-size: 14px;
+            color: #6b7280;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: pre-wrap;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+        .empty-state-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .detail-view {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+            z-index: 50;
+            overflow-y: auto;
+        }
+        .detail-view.active {
+            display: block;
+        }
+        .detail-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            flex: 1;
+        }
+        .detail-content {
+            padding: 32px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .detail-box {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+        }
+        .detail-category {
+            font-size: 12px;
+            color: #0d9488;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .detail-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+        }
+        .arabic-text {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 28px;
+            line-height: 1.8;
+            text-align: center;
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            direction: rtl;
+            color: #1a1a1a;
+        }
+        .translation-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #4b5563;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+        .reference-text {
+            font-size: 13px;
+            color: #6b7280;
+            font-style: italic;
+            white-space: pre-wrap;
+        }
+        .detail-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-primary {
+            background: #0d9488;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0f766e;
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #1a1a1a;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .btn-danger {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        .btn-danger:hover {
+            background: #fca5a5;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+        .modal-overlay.active {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        @media (min-width: 768px) {
+            .modal-overlay.active {
+                align-items: center;
+            }
+        }
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 24px 24px 0 0;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+        @media (min-width: 768px) {
+            .modal {
+                border-radius: 12px;
+                max-height: none;
+            }
+        }
+        .modal-header {
+            background: white;
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+        }
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+        }
+        .modal-body {
+            padding: 24px;
+            display: grid;
+            gap: 16px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .form-input,
+        .form-textarea,
+        .form-select {
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #0d9488;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-textarea.arabic {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 18px;
+            direction: rtl;
+            text-align: right;
+        }
+        .form-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 64px;
+            height: 64px;
+            background: #0d9488;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3);
+            transition: all 0.2s;
+            z-index: 40;
+        }
+        .fab:hover {
+            background: #0f766e;
+            transform: scale(1.1);
+        }
+        .fab:active {
+            transform: scale(0.95);
+        }
         @media (max-width: 640px) {
-            .fab { bottom: 24px; right: 24px; width: 56px; height: 56px; font-size: 28px; }
-            .dua-list { grid-template-columns: 1fr; }
-            .header h1 { font-size: 24px; }
-            .detail-title { font-size: 22px; }
-            .arabic-text { font-size: 20px; }
+            .fab {
+                bottom: 24px;
+                right: 24px;
+                width: 56px;
+                height: 56px;
+                font-size: 28px;
+            }
+        }
+        @media (max-width: 640px) {
+            .dua-list {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .detail-title {
+                font-size: 22px;
+            }
+            .arabic-text {
+                font-size: 20px;
+            }
+        }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -81,19 +458,26 @@
         <div class="header-content">
             <h1>📿 My Dua Library</h1>
             <div class="header-buttons">
+                <button class="header-btn" id="themeToggleBtn" title="Toggle dark mode">🌙</button>
                 <button class="header-btn" id="backBtn" style="display: none;">←</button>
             </div>
         </div>
     </div>
+
     <div class="content" id="mainContent">
         <div class="container">
             <div class="search-container">
                 <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" id="mainSearchInput" placeholder="Search duas...">
             </div>
-            <div class="dua-list" id="duaList"></div>
+            <div class="dua-list" id="duaList">
+                <div class="empty-state">
+                    <div class="empty-state-text">Loading your duas...</div>
+                </div>
+            </div>
         </div>
     </div>
+
     <div class="detail-view" id="detailView">
         <div class="detail-header">
             <h2 id="detailTitle"></h2>
@@ -117,6 +501,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
@@ -131,7 +516,17 @@
                 <div class="form-group">
                     <label class="form-label">Category</label>
                     <select class="form-select" id="formCategory">
-                        <option>Daily</option><option>Morning</option><option>Evening</option><option>Protection</option><option>Health</option><option>Work</option><option>Family</option><option>Studies</option><option>Travel</option><option>Marriage &amp; Relationships</option><option>Other</option>
+                        <option>Daily</option>
+                        <option>Morning</option>
+                        <option>Evening</option>
+                        <option>Protection</option>
+                        <option>Health</option>
+                        <option>Work</option>
+                        <option>Family</option>
+                        <option>Studies</option>
+                        <option>Travel</option>
+                        <option>Marriage &amp; Relationships</option>
+                        <option>Other</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -153,10 +548,15 @@
             </form>
         </div>
     </div>
+
     <button class="fab" id="addBtn">➕</button>
+
     <script>
         class DuaDB {
-            constructor() { this.db = null; }
+            constructor() {
+                this.db = null;
+            }
+
             async init() {
                 if (this.db) return true;
                 return new Promise((resolve) => {
@@ -164,24 +564,40 @@
                         const request = indexedDB.open('MyDuaLibrary', 1);
                         request.onupgradeneeded = (e) => {
                             const db = e.target.result;
-                            if (!db.objectStoreNames.contains('duas')) db.createObjectStore('duas', { keyPath: 'id' });
+                            if (!db.objectStoreNames.contains('duas')) {
+                                db.createObjectStore('duas', { keyPath: 'id' });
+                            }
                         };
-                        request.onsuccess = () => { this.db = request.result; resolve(true); };
-                        request.onerror = () => resolve(false);
-                    } catch { resolve(false); }
+                        request.onsuccess = () => {
+                            this.db = request.result;
+                            resolve(true);
+                        };
+                        request.onerror = () => {
+                            console.warn('IndexedDB blocked or not supported.');
+                            resolve(false);
+                        };
+                    } catch (e) {
+                        console.warn('IndexedDB failed to initialize.');
+                        resolve(false);
+                    }
                 });
             }
+
             async getAll() {
                 if (!this.db) return [];
                 return new Promise((resolve) => {
                     try {
                         const tx = this.db.transaction('duas', 'readonly');
-                        const request = tx.objectStore('duas').getAll();
+                        const store = tx.objectStore('duas');
+                        const request = store.getAll();
                         request.onsuccess = () => resolve(request.result || []);
                         request.onerror = () => resolve([]);
-                    } catch { resolve([]); }
+                    } catch (e) {
+                        resolve([]);
+                    }
                 });
             }
+
             async add(dua) {
                 if (!this.db) return dua;
                 const id = dua.id || Date.now().toString();
@@ -189,22 +605,43 @@
                 return new Promise((resolve) => {
                     try {
                         const tx = this.db.transaction('duas', 'readwrite');
-                        const request = tx.objectStore('duas').put(newDua);
+                        const store = tx.objectStore('duas');
+                        const request = store.add(newDua);
                         request.onsuccess = () => resolve(newDua);
                         request.onerror = () => resolve(newDua);
-                    } catch { resolve(newDua); }
+                    } catch (e) {
+                        resolve(newDua);
+                    }
                 });
             }
-            async update(id, dua) { return this.add({ ...dua, id }); }
+
+            async update(id, dua) {
+                if (!this.db) return { ...dua, id };
+                return new Promise((resolve) => {
+                    try {
+                        const tx = this.db.transaction('duas', 'readwrite');
+                        const store = tx.objectStore('duas');
+                        const request = store.put({ ...dua, id });
+                        request.onsuccess = () => resolve({ ...dua, id });
+                        request.onerror = () => resolve({ ...dua, id });
+                    } catch (e) {
+                        resolve({ ...dua, id });
+                    }
+                });
+            }
+
             async delete(id) {
                 if (!this.db) return;
                 return new Promise((resolve) => {
                     try {
                         const tx = this.db.transaction('duas', 'readwrite');
-                        const request = tx.objectStore('duas').delete(id);
+                        const store = tx.objectStore('duas');
+                        const request = store.delete(id);
                         request.onsuccess = () => resolve();
                         request.onerror = () => resolve();
-                    } catch { resolve(); }
+                    } catch (e) {
+                        resolve();
+                    }
                 });
             }
         }
@@ -213,50 +650,325 @@
         let allDuas = [];
         let currentDua = null;
         let editingId = null;
+        let isDarkTheme = false;
 
         const SAMPLE_DUAS = [
-            { id: 'durood-ibrahim', title: 'Durood Ibrahim (Ṣalāt al-Ibrāhīmiyyah)', category: 'Durood / Blessings upon Prophet ﷺ', arabic: 'اللهم صلِّ على محمدٍ وعلى آل محمدٍ كما صليت على إبراهيم وعلى آل إبراهيم إنك حميدٌ مجيد، اللهم بارك على محمدٍ وعلى آل محمدٍ كما باركت على إبراهيم وعلى آل إبراهيم إنك حميدٌ مجيد.', translation: 'O Allah, send Your prayers upon Muhammad and the family of Muhammad as You sent prayers upon Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad as You blessed Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious.', reference: 'Required in Salah (Final Tashahhud) | Highly Recommended Throughout the Day' },
-            { id: 'how-to-delete-every-sin', title: "How to Delete Every Sin You've Ever Committed", category: 'Daily', arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ.', translation: 'There is no god worthy of worship except Allah alone, without partner. To Him belongs all dominion and all praise, and He is over all things All-Powerful. There is no might nor power except with Allah. Glory be to Allah, all praise is for Allah, there is no god but Allah, and Allah is the Greatest.', reference: '' },
-            { id: 'night-supplication-for-mercy', title: "Night Supplication for Allah's Mercy", category: 'Daily', arabic: 'اللَّهُمَّ رَحْمَتَكَ أَرْجُو فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ، لَا إِلَٰهَ إِلَّا أَنْتَ', translation: 'O Allah, I hope for Your mercy, so do not leave me to myself even for the blink of an eye. Rectify all of my affairs. There is no god worthy of worship except You.', reference: '' },
-            { id: 'more-than-you-ask', title: "Du'a for Allah to Grant More Than You Ask", category: 'Daily', arabic: 'اللَّهُمَّ أَعْطِنِي فَوْقَ أَمَلِي، وَأَكْثَرَ مِمَّا أَسْأَلُ', translation: 'O Allah, grant me more than I hope for and more than I ask.', reference: '' },
-            { id: 'choose-what-is-best', title: "Du'a for Allah to Choose What Is Best", category: 'Daily', arabic: 'اللَّهُمَّ اخْتَرْ لِي وَلَا تَخْتَرْ عَلَيَّ', translation: 'O Allah, choose what is best for me, and do not leave me to my own choice.', reference: '' },
-            { id: 'quranic-dua-righteous-spouse', title: "Qur'anic Du'a for a Righteous Spouse", category: 'Daily', arabic: 'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ', translation: 'Our Lord, grant us from among our spouses and our offspring comfort to our eyes.\n\nWhy Is This Du\'a So Special?\n\nAllah describes His most beloved servants as Ibad ar-Rahman (The Servants of the Most Merciful) in Surah Al-Furqan. Throughout these verses, Allah praises their character, worship, humility, patience, generosity, and devotion.\n\nThe final quality Allah mentions is this beautiful du\'a:\n\nOur Lord, grant us from our spouses and offspring comfort to our eyes and make us leaders for the righteous.\n\nThis shows that even after a life filled with worship and obedience, the righteous still turned to Allah asking for one of the greatest blessings—a righteous family.\n\nReflection\n\nThe phrase Qurrata A\'yun (Comfort to our eyes) does not simply mean happiness. It refers to the deep peace and joy a believer feels when seeing their spouse and children obey Allah, remain steadfast upon faith, and become a source of goodness in this life and the Hereafter.\n\nThis du\'a teaches us to ask not only for a spouse or children, but for a family that brings us closer to Allah.', reference: 'Surah Al-Furqan (25:74)' },
-            { id: 'dua-for-provision', title: "Du'a for Provision", category: 'Daily', arabic: 'اللَّهُمَّ ارْزُقْنِي مِنْ حَيْثُ لَا أَحْتَسِبُ، وَافْتَحْ لِي فُتُوحَ الْعَارِفِينَ', translation: 'O Allah, provide for me from where I do not expect, and open for me the doors of wisdom and understanding.', reference: '' },
-            { id: 'verses-from-surah-ad-duha', title: 'Verses from Surah Ad-Duha', category: 'Daily', arabic: 'وَوَجَدَكَ ضَالًّا فَهَدَىٰ\n\nوَوَجَدَكَ عَائِلًا فَأَغْنَىٰ\n\nفَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ\n\nوَأَمَّا السَّائِلَ فَلَا تَنْهَرْ\n\nوَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ', translation: 'Did He not find you unguided, then guide you? And did He not find you in need, then enrich you? So do not oppress the orphan, nor repel the beggar. But proclaim the blessings of your Lord.', reference: '' },
-            { id: 'night-dhikr-and-supplication', title: 'Night Dhikr and Supplication', category: 'Daily', arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.\n\nسُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ.\n\nوَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ.\n\nرَبِّ اغْفِرْ لِي', translation: 'There is no god worthy of worship except Allah alone, without partner. To Him belongs all dominion and all praise, and He is over all things All-Powerful. Glory be to Allah, all praise is for Allah, there is no god worthy of worship except Allah, Allah is the Greatest, there is no might nor power except with Allah, the Most High, the Most Great. My Lord, forgive me.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ said:\n\nWhoever wakes up during the night and says:\n\nLa ilaha illallahu wahdahu la sharika lah, lahul mulku wa lahul hamdu, wa huwa \u0027ala kulli shay\u0027in qadir. Alhamdu lillah, wa subhanallah, wa la ilaha illallah, wallahu akbar, wa la hawla wa la quwwata illa billah.\n\nThen says:\n\nAllahummaghfir li (O Allah, forgive me),\n\nor makes any supplication, his du\'a will be answered. If he performs wudu and prays, his prayer will be accepted.\n\nWhen to Recite\n\n• Whenever you wake up during the night.\n\n• Before making du\'a.\n\n• Before praying voluntary night prayers (Tahajjud).\n\nReflection\n\nThis beautiful dhikr reminds us that the quiet moments of the night are a special opportunity to remember Allah and turn to Him with sincerity. When you wake during the night, begin by glorifying Allah, seek His forgiveness, and ask Him for your needs with complete trust in His mercy.', reference: 'Sahih al-Bukhari (1154)' },
-            { id: 'short-duas-everyday-needs', title: "Short Du'as for Everyday Needs", category: 'Daily', arabic: 'اللَّهُمَّ يَسِّرْ وَلَا تُعَسِّرْ\n\nيَا رَبِّ\n\nحَسْبِيَ اللَّهُ وَنِعْمَ الْوَكِيلُ\n\nرَبَّنَا تَقَبَّلْ مِنَّا\n\nيَا فَتَّاحُ افْتَحْ لِي\n\nرَبِّ زِدْنِي عِلْمًا\n\nلَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ', translation: 'O Allah, make it easy and do not make it difficult.\n\nO my Lord.\n\nAllah is sufficient for me, and He is the best Disposer of affairs.\n\nOur Lord, accept this from us.\n\nO Opener, open the doors of goodness for me.\n\nMy Lord, increase me in knowledge.\n\nThere is no god worthy of worship except You. Glory be to You. Indeed, I have been among the wrongdoers.', reference: '' },
-            { id: 'calling-upon-allah-beautiful-names', title: 'Calling Upon Allah by His Beautiful Names', category: 'Daily', arabic: 'يَا فَتَّاحُ\n\nيَا سَمِيعُ\n\nيَا مُجِيبُ\n\nيَا وَهَّابُ', translation: 'O Opener.\n\nO All-Hearing.\n\nO Responsive One.\n\nO Bestower.', reference: '' },
-            { id: 'hasbunallahu-wa-nimal-wakeel', title: "Hasbunallahu wa Ni'mal Wakeel", category: 'Daily', arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', translation: 'Allah is sufficient for us, and He is the best Disposer of affairs.', reference: '' },
-            { id: 'collection-powerful-duas', title: "Collection of Powerful Du'as", category: 'Daily', arabic: 'لَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ\n\nرَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ\n\nوَلَمْ أَكُنْ بِدُعَائِكَ رَبِّ شَقِيًّا\n\nيَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ\n\nلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', translation: 'There is no god worthy of worship except You. Glory be to You. Indeed, I have been among the wrongdoers.\n\nMy Lord, I am truly in need of whatever good You send down to me.\n\nMy Lord, I have never been disappointed in calling upon You.\n\nO Ever-Living, O Sustainer, by Your mercy I seek relief. Rectify all of my affairs and do not leave me to myself even for the blink of an eye.\n\nThere is no might nor power except with Allah.', reference: '' },
-            { id: 'hasbi-allah', title: 'Hasbi Allah', category: 'Daily', arabic: 'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ، وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ', translation: 'Allah is sufficient for me. There is no god worthy of worship except Him. Upon Him I have placed my trust, and He is the Lord of the Mighty Throne.', reference: '' },
-            { id: 'morning-evening-declaration-faith', title: 'Morning and Evening Declaration of Faith', category: 'Daily', arabic: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ ﷺ نَبِيًّا وَرَسُولًا', translation: 'I am pleased with Allah as my Lord, with Islam as my religion, and with Muhammad ﷺ as my Prophet and Messenger.', reference: '' },
-            { id: 'dua-for-acceptance', title: "Du'a for Acceptance", category: 'Daily', arabic: 'رَبَّنَا تَقَبَّلْ مِنَّا، إِنَّكَ أَنْتَ السَّمِيعُ الْعَلِيمُ', translation: 'Our Lord, accept this from us. Indeed, You are the All-Hearing, the All-Knowing.', reference: '' },
-            { id: 'la-hawla-wa-la-quwwata-illa-billah', title: 'La Hawla wa La Quwwata Illa Billah', category: 'Daily', arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', translation: 'There is no might and no power except with Allah.', reference: '' },
-            { id: 'structure-of-dua', title: "Structure of Du'a", category: 'Daily', arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنَّ لَكَ الْحَمْدَ، لَا إِلَهَ إِلَّا أَنْتَ، الْمَنَّانُ، بَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ، يَا ذَا الْجَلَالِ وَالْإِكْرَامِ، يَا حَيُّ يَا قَيُّومُ\n\nلَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ\n\nاللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ\n\nاللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ. اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ.', translation: "Meaning:\n\nO Allah, I ask You because all praise belongs to You. There is no god worthy of worship except You, the Bestower of every blessing, the Originator of the heavens and the earth, O Possessor of Majesty and Honor, O Ever-Living, O Sustainer.\n\nMeaning:\n\nThere is no god worthy of worship except You. Glory be to You. Indeed, I have been among the wrongdoers.\n\nMeaning:\n\nO Allah, You are my Lord. There is no deity except You. You created me, and I am Your servant. I uphold Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I acknowledge my sins, so forgive me, for none forgives sins except You.\n\nMeaning:\n\nO Allah, send Your prayers upon Muhammad and the family of Muhammad as You sent prayers upon Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad as You blessed Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious.\n\nA beautiful structure for making du'a is:\n\n1. Begin by praising Allah (Sana) and glorifying Him.\n\n2. Call upon Allah using His Beautiful Names and Attributes.\n\n3. Send blessings (Salawat) upon Prophet Muhammad ﷺ.\n\n4. Confess your shortcomings and seek Allah's forgiveness (Istighfar).\n\n5. Ask Allah sincerely for your needs and hopes.\n\n6. End by sending Salawat upon the Prophet ﷺ once again and place your trust in Allah.", reference: '' },
-            { id: 'hasbiyallahu-la-ilaha-illa-huwa-detailed', title: 'Hasbiyallahu La Ilaha Illa Huwa', category: 'Daily', arabic: 'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ، وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ', translation: "Allah is sufficient for me. There is no deity worthy of worship except Him. Upon Him I have placed my trust, and He is the Lord of the Mighty Throne.\n\nWhy Should We Say This?\n\nThis beautiful verse comes directly from the Qur'an (Surah At-Tawbah 9:129). It teaches complete reliance (tawakkul) upon Allah and reminds us that He alone is sufficient for every need.\n\nMeaning of Each Phrase\n\n• حَسْبِيَ اللَّهُ (Hasbiyallahu)\n\nAllah is sufficient for me.\n\nYou declare that Allah alone is enough to protect, guide, help, and support you.\n\n• لَا إِلَٰهَ إِلَّا هُوَ\n\nThere is no deity worthy of worship except Him.\n\nThis affirms Tawhid—the oneness of Allah.\n\n• عَلَيْهِ تَوَكَّلْتُ\n\nUpon Him I have placed my trust.\n\nYou acknowledge that after taking the necessary means, your heart relies completely upon Allah.\n\n• وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ\n\nAnd He is the Lord of the Mighty Throne.\n\nAllah is the Lord of the greatest of all His creations, demonstrating His absolute power, authority, and sovereignty over everything.\n\nWhen Should You Recite It?\n\n• When you feel anxious or worried.\n\n• During hardship or difficulty.\n\n• When facing uncertainty or fear.\n\n• After making du'a and placing your trust in Allah.\n\n• Anytime you wish to renew your reliance upon Allah.\n\nAuthenticity\n\nThis verse is part of the Qur'an, so reciting it is an act of worship.\n\nThere is a narration mentioning reciting it seven times in the morning and evening with the promise that Allah will suffice the person. However, many hadith scholars did not consider that narration to be authentically established. Therefore, it should not be presented as a confirmed Sunnah.\n\nWhat is authentically established is:\n\n• This is a verse from the Qur'an.\n\n• It teaches complete trust (tawakkul) in Allah.\n\n• Reciting Qur'anic verses and remembering Allah is always a virtuous act.\n\nReflection\n\nThis verse is not a formula for obtaining something specific. Rather, it is a powerful declaration of faith, tawḥīd, reliance upon Allah, and confidence that He alone is sufficient for every affair in this life and the next.", reference: '' },
-            { id: 'dua-containing-allahs-greatest-name', title: "The Du'a Containing Allah's Greatest Name", category: 'Daily', arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنَّ لَكَ الْحَمْدَ، لَا إِلَهَ إِلَّا أَنْتَ، الْمَنَّانُ، بَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ، يَا ذَا الْجَلَالِ وَالْإِكْرَامِ، يَا حَيُّ يَا قَيُّومُ', translation: "O Allah, I ask You because all praise belongs to You. There is no deity worthy of worship except You. You are Al-Mannān (The Most Generous Bestower of countless favors), the Originator of the heavens and the earth. O Possessor of Majesty and Honor, O Ever-Living, O Self-Sustaining One.\n\nAfter reciting this, ask Allah sincerely for whatever is good for your religion, your worldly life, and your Hereafter.\n\nMeaning of Each Name\n\nاللَّهُمَّ إِنِّي أَسْأَلُكَ\n\nO Allah, I ask You.\n\nبِأَنَّ لَكَ الْحَمْدَ\n\nBecause all praise belongs to You alone.\n\nلَا إِلَهَ إِلَّا أَنْتَ\n\nThere is no deity worthy of worship except You.\n\nالْمَنَّانُ\n\nThe Most Generous Bestower of countless favors and blessings.\n\nبَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ\n\nThe Originator of the heavens and the earth.\n\nيَا ذَا الْجَلَالِ وَالْإِكْرَامِ\n\nO Possessor of Majesty and Honor.\n\nيَا حَيُّ\n\nO Ever-Living One.\n\nيَا قَيُّومُ\n\nO Self-Sustaining One who sustains all of creation.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ heard a man making this supplication and said:\n\nHe has asked Allah by His Greatest Name. If He is called upon by it, He answers, and if He is asked by it, He gives.\n\nThis authentic narration is recorded in Jami' at-Tirmidhi and Sunan Abi Dawud.\n\nHow to Make Du'a\n\n1. Begin by praising Allah with this supplication.\n\n2. Send blessings (Salawat) upon Prophet Muhammad ﷺ.\n\n3. Ask Allah sincerely for your needs, hopes, and worries.\n\n4. End your du'a by sending Salawat upon the Prophet ﷺ once again.\n\n5. Trust Allah's wisdom, knowing that He answers every sincere du'a in the best way and at the best time.", reference: '' },
-            { id: 'dua-that-makes-difficult-things-easy', title: "The Du'a That Makes Difficult Things Easy", category: 'Daily', arabic: 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا', translation: "O Allah, there is no ease except in what You make easy. If You will, You can make even the most difficult matter easy.\n\nWhy Should We Say This?\n\nThis beautiful supplication teaches us that true ease comes only from Allah. No matter how difficult a situation may seem, Allah has the power to make it simple. It reminds us to rely upon Him instead of our own strength and to ask Him to remove hardship and replace it with ease.\n\nWhen to Recite\n\n• Before an exam or interview.\n\n• Before beginning a difficult task.\n\n• During times of stress or anxiety.\n\n• When facing hardship or uncertainty.\n\n• Anytime you ask Allah to make something easy.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ would make this supplication whenever he faced a difficult matter, teaching us to turn to Allah first whenever we seek ease.", reference: 'Sahih Ibn Hibban (2427)' },
-            { id: 'dua-for-difficult-and-seemingly-impossible-matters', title: 'Dua for Difficult and Seemingly Impossible Matters', category: 'Daily', arabic: 'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ، وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ', translation: "Allah is sufficient for me. There is none worthy of worship except Him. I have placed my trust in Him, and He is the Lord of the Majestic Throne.\n\nWhy Should We Say This?\n\nThis verse from the Qur'an is a declaration of complete trust (tawakkul) in Allah. It reminds us that no matter how impossible a situation may seem, Allah alone is sufficient for every need. When we rely upon Him sincerely, we place our affairs in the hands of the One who has complete power over all things.\n\nWhen to Recite\n\n• During hardship or difficulty.\n\n• When facing something that seems impossible.\n\n• When feeling anxious, afraid, or overwhelmed.\n\n• After making du'a and placing your trust in Allah.\n\n• Anytime you wish to renew your reliance upon Allah.\n\nWhat Allah Teaches Us\n\nThis supplication comes directly from the Qur'an (Surah At-Tawbah 9:129). It teaches believers to place complete trust in Allah, knowing that He alone is sufficient and that He is the Lord of the Mighty Throne.", reference: '' },
-            { id: 'powerful-dua-seeking-allahs-forgiveness', title: "Powerful Du'a for Seeking Allah's Forgiveness", category: 'Daily', arabic: 'اللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ، دِقَّهُ وَجِلَّهُ، وَأَوَّلَهُ وَآخِرَهُ، وَعَلَانِيَتَهُ وَسِرَّهُ', translation: "O Allah, forgive all my sins—the small and the great, the first and the last, the public and the private.\n\nWhy Should We Say This?\n\nThe Prophet Muhammad ﷺ taught this beautiful supplication to seek Allah's complete forgiveness. It asks Allah to forgive every sin, regardless of its size, when it was committed, or whether it was done openly or in secret.\n\nSeeking forgiveness (istighfar) is one of the greatest acts of worship. Allah promises forgiveness, mercy, and relief for those who sincerely repent and turn back to Him.\n\nBenefits of Seeking Forgiveness\n\n• It brings you closer to Allah.\n\n• It removes the burden of sins.\n\n• It brings peace and tranquility to the heart.\n\n• It is a means for Allah's mercy and blessings.\n\n• It opens the doors to relief and goodness by Allah's permission.\n\nWhen to Recite\n\n• After the obligatory prayers.\n\n• During Tahajjud.\n\n• In Sujood.\n\n• During the last third of the night.\n\n• Whenever seeking Allah's forgiveness.\n\n• Anytime throughout the day.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ would frequently seek Allah's forgiveness and encouraged his followers to repent sincerely. This supplication asks Allah to forgive every type of sin, making it one of the comprehensive du'as for repentance.\n\nTrust that Allah hears every sincere repentance. No sin is too great for His mercy when a servant turns back to Him with a sincere heart.", reference: '' },
-            { id: 'sayyid-al-istighfar', title: 'Sayyid al-Istighfar (Chief Supplication for Forgiveness)', category: 'Repentance & Forgiveness', arabic: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلقتني وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', translation: 'O Allah, You are my Lord. There is no god except You. You created me, and I am Your servant. I uphold Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I acknowledge my sins, so forgive me, for none forgives sins except You.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ said:\n\nWhoever recites this supplication during the day with firm faith in it and dies before evening will be among the people of Paradise. And whoever recites it during the night with firm faith in it and dies before morning will be among the people of Paradise.\n\nWhen to Recite\n\n• Every morning.\n\n• Every evening.\n\n• Whenever seeking Allah\'s forgiveness with sincerity.', reference: 'Sahih al-Bukhari (6306)' },
-            { id: 'allah-brings-hearts-together', title: 'Allah Brings Hearts Together', category: 'Daily', arabic: 'وَأَلَّفَ بَيْنَ قُلُوبِهِمْ ۚ لَوْ أَنفَقْتَ مَا فِي الْأَرْضِ جَمِيعًا مَّا أَلَّفْتَ بَيْنَ قُلُوبِهِمْ وَلَٰكِنَّ اللَّهَ أَلَّفَ بَيْنَهُمْ ۚ إِنَّهُ عَزِيزٌ حَكِيمٌ', translation: "And He brought their hearts together. If you had spent all that is on the earth, you could not have brought their hearts together; but Allah brought them together. Indeed, He is All-Mighty, All-Wise.\n\nWhy Should We Reflect on This Verse?\n\nThis beautiful verse reminds us that the hearts of people are in Allah's Hands. Love, affection, reconciliation, and unity are blessings that only Allah can place between people. No amount of wealth, effort, or influence can unite hearts if Allah does not will it.\n\nIf you are praying for a righteous marriage, reconciliation, family harmony, or stronger relationships, this verse is a powerful reminder to place your trust in Allah, for He alone joins hearts together.\n\nWhen to Recite\n\n• When making du'a for marriage.\n\n• When praying for love and affection between spouses.\n\n• When asking Allah to reconcile hearts.\n\n• During Tahajjud.\n\n• After Salah while making personal du'a.\n\n• Anytime you seek unity, peace, and harmony.\n\nReflection\n\nAllah is the One who turns hearts. When something seems impossible between people, remember that what people cannot achieve, Allah can accomplish with a single command. Trust His wisdom, ask Him sincerely, and leave the outcome to Him.", reference: 'Surah Al-Anfal (8:63)' },
-            { id: 'dua-of-prophet-nuh', title: "The Du'a of Prophet Nuh (AS)", category: 'Daily', arabic: 'رَبِّ إِنِّي مَغْلُوبٌ فَانْتَصِرْ', translation: "My Lord, I am overpowered, so grant me victory.\n\nWhy Should We Say This?\n\nThis is the heartfelt supplication of Prophet Nuh (Noah) عليه السلام when his people persistently rejected his message despite his patience and years of calling them to Allah. Feeling completely overwhelmed, he turned to Allah alone for help, saying, My Lord, I am overpowered, so grant me victory.\n\nThis du'a teaches us that when we have exhausted our efforts and feel helpless, we should place our trust in Allah and seek His help, for He is the Best of Helpers.\n\nWhen to Recite\n\n• When you feel overwhelmed.\n\n• During hardship or oppression.\n\n• When facing trials beyond your control.\n\n• During Tahajjud.\n\n• Anytime you sincerely seek Allah's help and support.\n\nReflection\n\nThere are moments when words fail and the heart feels exhausted. This short but powerful du'a reminds us that we do not face our struggles alone. Just as Allah answered Prophet Nuh (AS), He hears every sincere call made with patience, trust, and reliance upon Him.", reference: 'Surah Al-Qamar (54:10)' },
-            { id: 'salat-al-istikharah', title: 'Salat al-Istikharah (Prayer for Guidance)', category: 'Daily', arabic: 'اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ، فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ، وَتَعْلَمُ وَلَا أَعْلَمُ، وَأَنْتَ عَلَّامُ الْغُيُوبِ.\n\nاللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ (mention your matter) خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي، فَاقْدُرْهُ لِي، وَيَسِّرْهُ لِي، ثُمَّ بَارِكْ لِي فِيهِ.\n\nوَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي، فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ، وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ، ثُمَّ أَرْضِنِي بِهِ.', translation: "When faced with an important decision, seek Allah's guidance through Salat al-Istikharah before making your choice.\n\nHow to Perform Salat al-Istikharah\n\n1. Make a sincere intention in your heart to seek Allah's guidance.\n\n2. Pray two rak'ahs of voluntary (nafl) prayer.\n\n• In the first rak'ah, recite Surah Al-Fatihah followed by any portion of the Qur'an.\n\n• In the second rak'ah, recite Surah Al-Fatihah followed by any portion of the Qur'an.\n\n(Some scholars recommend reciting Surah Al-Kafirun in the first rak'ah and Surah Al-Ikhlas in the second, but this is not an authentic requirement.)\n\n3. After completing the prayer, recite the Du'a of Istikharah.\n\nMeaning\n\nO Allah, I seek Your guidance through Your knowledge, and I seek ability through Your power, and I ask You from Your immense bounty. Indeed, You have power while I have none, You know while I do not know, and You are the Knower of the unseen.\n\nO Allah, if You know that this matter (mention your decision) is good for my religion, my livelihood, and the outcome of my affairs, then decree it for me, make it easy for me, and bless it for me.\n\nBut if You know that this matter is bad for my religion, my livelihood, and the outcome of my affairs, then turn it away from me and turn me away from it, and decree for me what is good wherever it may be, then make me content with it.\n\nImportant Notes\n\n• Pray with sincerity and trust in Allah.\n\n• Mention your specific decision during the du'a.\n\n• There is no authentic requirement to see a dream after Istikharah.\n\n• After making Istikharah, proceed with the option that becomes clear while trusting Allah's decree.\n\n• If you remain uncertain, you may repeat Istikharah. There is no authentic evidence limiting it to seven times.", reference: "Jabir ibn Abdullah (RA) reported that the Messenger of Allah ﷺ used to teach his companions Istikharah in all matters just as he taught them a surah from the Qur'an.\n\nSahih al-Bukhari (1166)" },
-            { id: 'surah-al-falaq', title: 'Surah Al-Falaq (The Daybreak)', category: 'Daily', arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ\n\nمِنْ شَرِّ مَا خَلَقَ\n\nوَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ\n\nوَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ\n\nوَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', translation: "Say, I seek refuge in the Lord of the daybreak,\n\nfrom the evil of what He has created,\n\nand from the evil of the darkness when it settles,\n\nand from the evil of those who blow on knots,\n\nand from the evil of an envier when he envies.\n\nWhy Should We Recite Surah Al-Falaq?\n\nSurah Al-Falaq is one of the two Mu'awwidhatayn (the chapters of refuge) revealed for seeking Allah's protection. It teaches us to seek refuge in Allah from every form of evil, including the evil eye, envy (hasad), magic (sihr), darkness, and all harmful things.\n\nThe Prophet ﷺ regularly recited Surah Al-Falaq together with Surah An-Nas and Surah Al-Ikhlas for protection, especially in the morning, evening, and before sleeping.\n\nWhen to Recite\n\n• Every morning and evening as part of the daily adhkar.\n\n• Before sleeping.\n\n• When seeking Allah's protection from the evil eye, envy, magic, and all forms of harm.\n\n• Whenever you wish to seek refuge in Allah.", reference: 'Surah Al-Falaq (Chapter 113)\n\nSahih al-Bukhari\n\nSahih Muslim' },
-            { id: 'dua-for-mercy-and-right-guidance', title: "Du'a for Mercy and Right Guidance", category: 'Daily', arabic: 'رَبَّنَا آتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا', translation: "Our Lord, grant us mercy from Yourself and prepare for us guidance and the right course in our affairs.\n\nWhy Should We Say This?\n\nThis is the supplication of the People of the Cave (Ashab al-Kahf) when they sought refuge in Allah. They turned to Him, asking for His mercy and for guidance in making the right decisions during a time of hardship and uncertainty.\n\nThis du'a reminds us to seek Allah's help whenever we face difficult choices, challenges, or situations beyond our control. It teaches us that true guidance, wisdom, and success come only from Allah.\n\nWhen to Recite\n\n• When facing an important decision.\n\n• During times of hardship or uncertainty.\n\n• When seeking Allah's guidance and mercy.\n\n• During Tahajjud.\n\n• After Salah while making personal du'a.\n\n• Anytime you ask Allah to guide your affairs.\n\nReflection\n\nLike the People of the Cave, every believer will face moments of uncertainty. This du'a teaches us to place our trust in Allah, asking Him not only for His mercy but also for the wisdom and guidance to choose the path that pleases Him.", reference: 'Surah Al-Kahf (18:10)' },
-            { id: 'dua-for-halal-provision-and-independence', title: "Du'a for Halal Provision and Independence", category: 'Daily', arabic: 'اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ', translation: "O Allah, make what You have made lawful sufficient for me so that I have no need for what You have forbidden, and enrich me through Your bounty so that I need no one besides You.\n\nWhy Should We Say This?\n\nThis beautiful supplication was taught by the Prophet ﷺ. It asks Allah to bless us with lawful (halal) provision, protect us from the unlawful (haram), and make us independent through His bounty rather than dependent on others. It reminds us that true wealth is not merely having more money, but being content with what Allah provides and relying upon Him alone.\n\nWhen to Recite\n\n• When seeking halal provision.\n\n• During financial hardship.\n\n• When burdened by debt.\n\n• When asking Allah to increase your sustenance.\n\n• After Salah while making personal du'a.\n\n• During Tahajjud.\n\n• On Fridays or at any time when making sincere du'a.\n\nReflection\n\nEvery provision comes from Allah alone. This du'a teaches us to seek blessings through lawful means, avoid the unlawful, and place our complete trust in Allah, knowing that He is Al-Ghani (The Self-Sufficient) and Ar-Razzaq (The Provider).\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ taught this supplication to seek Allah's help in attaining lawful provision and freedom from dependence on others. It is a beautiful reminder that Allah's bounty is sufficient for every believer.", reference: 'Jami\' at-Tirmidhi (3563)' },
-            { id: 'dua-for-knowledge-and-wisdom', title: "Du'a for Knowledge and Wisdom", category: 'Daily', arabic: 'سُبْحَانَكَ لَا عِلْمَ لَنَا إِلَّا مَا عَلَّمْتَنَا ۖ إِنَّكَ أَنْتَ الْعَلِيمُ الْحَكِيمُ', translation: "Glory be to You. We have no knowledge except what You have taught us. Indeed, You are the All-Knowing, the All-Wise.\n\nWhy Should We Say This?\n\nThis beautiful Qur'anic supplication reminds us that all knowledge comes from Allah alone. It teaches humility, encouraging us to seek beneficial knowledge, wisdom, understanding, and success through His guidance. Whenever we study, learn something new, or prepare for an exam, we should remember that true understanding is a blessing from Allah.\n\nWhen to Recite\n\n• Before studying.\n\n• Before an exam or interview.\n\n• Before reading the Qur'an.\n\n• When seeking beneficial knowledge.\n\n• Before attending classes or lectures.\n\n• Anytime you ask Allah to increase you in knowledge and wisdom.\n\nReflection\n\nKnowledge is one of Allah's greatest blessings. This du'a reminds us that no matter how much we learn, our knowledge is only what Allah has taught us. It encourages humility, gratitude, and reliance upon Allah while striving to learn and grow.", reference: 'Surah Al-Baqarah (2:32)' },
-            { id: 'dua-for-an-easy-reckoning', title: "Du'a for an Easy Reckoning", category: 'Daily', arabic: 'اللَّهُمَّ حَاسِبْنِي حِسَابًا يَسِيرًا', translation: "O Allah, grant me an easy reckoning.\n\nWhy Should We Say This?\n\nThis beautiful supplication was taught by the Prophet ﷺ. It is a du'a asking Allah to make our account on the Day of Judgment easy, forgiving our shortcomings and treating us with His mercy.\n\nEvery believer hopes to meet Allah with a light and easy reckoning, and this du'a reminds us to prepare for the Hereafter while seeking His forgiveness and compassion.\n\nWhen to Recite\n\n• During your daily du'a.\n\n• After Salah.\n\n• During Tahajjud.\n\n• When remembering the Hereafter.\n\n• Anytime you ask Allah for His mercy and forgiveness.\n\nWhat the Prophet ﷺ Taught\n\nWhen the Prophet ﷺ made this supplication, Sayyidah Aishah (RA) asked him, What is an easy reckoning?\n\nHe replied:\n\nThat Allah looks into a person's record and overlooks their sins. Whoever is taken to account in detail on that Day will be doomed.", reference: 'Musnad Ahmad\n\nAlso reported in Sahih al-Bukhari and Sahih Muslim regarding the explanation of an easy reckoning.' },
-            { id: 'dua-for-rizq-provision', title: "Du'a for Rizq (Provision)", category: 'Daily', arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ وَرَحْمَتِكَ، فَإِنَّهُ لَا يَمْلِكُهَا إِلَّا أَنْتَ', translation: "O Allah, I ask You for Your bounty and Your mercy, for indeed no one possesses them except You.\n\nWhy Should We Say This?\n\nThis beautiful supplication asks Allah to bless us with His bounty (fadl) and mercy (rahmah). Every provision, blessing, and opportunity comes from Allah alone. By reciting this du'a, we acknowledge that no one can grant true sustenance except Him.\n\nWhen to Recite\n\n• When seeking halal provision.\n\n• During financial hardship.\n\n• After Salah while making personal du'a.\n\n• During Tahajjud.\n\n• Before starting work or business.\n\n• Anytime you ask Allah to increase your sustenance and blessings.\n\nReflection\n\nTrue rizq is not limited to wealth. It includes good health, beneficial knowledge, righteous family, inner peace, barakah, and every blessing that Allah grants. This du'a reminds us to seek all forms of provision from the One who owns every treasure.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ taught this supplication to ask Allah for His bounty and mercy, recognizing that all provision and blessings belong to Him alone.", reference: 'Sunan Abi Dawud (1694)' },
-            { id: 'islamic-reminder-not-a-dua', title: 'Islamic Reminder (Not a Du\'a)', category: 'Daily', arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ', translation: "This is a reminder (naseehah), not a du'a from the Qur'an or Sunnah.\n\nAlways strive to become a better Muslim.\n\nPray your five daily prayers on time.\n\nRepent sincerely whenever you fall into sin.\n\nRead and reflect upon the Qur'an regularly.\n\nAvoid judging others, for Allah alone knows what is in every heart.\n\nFollow the teachings of the Qur'an and the authentic Sunnah.\n\nAlways turn back to Allah, no matter how far you feel you have strayed. His mercy is greater than your sins.\n\nDo not let this temporary world distract you from your eternal home in the Hereafter.\n\nLive by the testimony:\n\nThere is no deity worthy of worship except Allah.\n\nStrive to avoid sin as much as you can. If you do fall into sin, repent sincerely and return to Allah without delay.\n\nReflection\n\nEvery day is an opportunity to grow closer to Allah. No one is perfect, but the best of those who sin are those who sincerely repent. Keep your heart attached to Allah, remain steadfast in worship, and never lose hope in His mercy.\n\nDu'a\n\nMay Allah forgive our sins, accept our repentance, guide us to the straight path, have mercy upon us, and grant us and the entire Ummah Jannatul Firdaus. Ameen.", reference: '' },
-            { id: 'salat-al-tasbih', title: 'Salat al-Tasbih', category: 'Daily', arabic: 'سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَٰهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ', translation: "Scholarly Note\n\nSalat al-Tasbih is a voluntary (nafl) prayer that has been mentioned in several hadith narrations. Scholars have differed regarding the authenticity of these narrations. Some considered them acceptable and recommended this prayer, while others considered them weak. For this reason, Salat al-Tasbih is not regarded by all scholars as an established Sunnah.\n\nThe Tasbih\n\nGlory be to Allah, all praise is for Allah, there is no deity worthy of worship except Allah, and Allah is the Greatest.\n\nHow It Is Commonly Performed\n\nSalat al-Tasbih consists of four rak'ahs (either prayed together or as two sets of two rak'ahs according to scholarly opinion).\n\nThe tasbih is recited 75 times in each rak'ah, totaling 300 recitations.\n\nIn each rak'ah:\n\n• 15 times after Surah Al-Fatihah and another surah.\n\n• 10 times during Ruku after the regular dhikr.\n\n• 10 times after rising from Ruku.\n\n• 10 times in the first Sujud after the regular dhikr.\n\n• 10 times while sitting between the two Sujud.\n\n• 10 times in the second Sujud after the regular dhikr.\n\n• 10 times before standing for the next rak'ah (or before Tashahhud in the final rak'ah).\n\nWhen to Pray\n\nThere is no authentic, fixed time for Salat al-Tasbih.\n\nThose scholars who consider it recommended generally state that it may be prayed whenever voluntary prayers are permitted, avoiding the prohibited prayer times.", reference: 'Sunan Abi Dawud (1297)\n\nSunan Ibn Majah (1387)\n\nScholars differ regarding the authenticity of these narrations.' },
-            { id: 'dua-calling-upon-allah-by-his-oneness', title: "Du'a Calling Upon Allah by His Oneness", category: 'Daily', arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنِّي أَشْهَدُ أَنَّكَ أَنْتَ اللَّهُ، لَا إِلَهَ إِلَّا أَنْتَ، الْأَحَدُ الصَّمَدُ، الَّذِي لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ', translation: "O Allah, I ask You, bearing witness that You are Allah. There is no deity worthy of worship except You, the One, the Eternal Refuge upon whom all creation depends. You neither beget nor were You begotten, and there is none comparable to You.\n\nWhy Should We Say This?\n\nThis beautiful supplication calls upon Allah by His perfect Names and Attributes mentioned in Surah Al-Ikhlas. It begins by affirming Allah's absolute Oneness before asking Him for one's needs.\n\nCalling upon Allah through His Beautiful Names is one of the greatest etiquettes of making du'a.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ heard a man making this supplication and said:\n\nHe has asked Allah by His Greatest Name, by which if He is called upon, He answers, and if He is asked, He gives.\n\nWhen to Recite\n\n• Before making personal du'a.\n\n• During Tahajjud.\n\n• After Salah.\n\n• Whenever asking Allah for something important.\n\n• Anytime you wish to call upon Allah through His Beautiful Names.\n\nReflection\n\nBefore asking Allah for your needs, praise Him and affirm His perfect Names and Attributes. This du'a reminds us that Allah is the One, the Eternal Refuge, and the only One worthy of worship. Every hope, fear, and request ultimately returns to Him.", reference: 'Sunan at-Tirmidhi (3475)' },
-            { id: 'dua-for-relief-from-distress', title: "Du'a for Relief from Distress", category: 'Daily', arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ\n\nلَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ\n\nلَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ', translation: "There is no deity worthy of worship except Allah, the Most Great, the Most Forbearing.\n\nThere is no deity worthy of worship except Allah, Lord of the Magnificent Throne.\n\nThere is no deity worthy of worship except Allah, Lord of the heavens, Lord of the earth, and Lord of the Noble Throne.\n\nWhy Should We Say This?\n\nThis beautiful supplication was taught by the Prophet ﷺ to be recited during times of distress, anxiety, and hardship. It begins by glorifying Allah and affirming His greatness before asking Him for relief. It reminds the believer that every difficulty is under Allah's control and that true relief comes only from Him.\n\nWhen to Recite\n\n• During times of hardship or distress.\n\n• When feeling overwhelmed or anxious.\n\n• During Tahajjud.\n\n• After Salah while making personal du'a.\n\n• Anytime you seek Allah's comfort, mercy, and relief.\n\nWhat the Prophet ﷺ Taught\n\nWhenever the Prophet ﷺ was faced with distress or a difficult matter, he would recite this supplication, turning completely to Allah with praise and trust.\n\nReflection\n\nBefore asking Allah for relief, this du'a teaches us to glorify Him and remember His Majesty. When the heart recognizes Allah's greatness, worries become smaller, and hope in His mercy becomes greater.", reference: 'Sahih al-Bukhari (6346)\n\nAlso narrated in Sahih Muslim.' },
-            { id: 'dua-for-relief-from-debt-and-financial-stress', title: "Du'a for Relief from Debt and Financial Stress", category: 'Daily', arabic: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْجُبْنِ وَالْبُخْلِ، وَضَلَعِ الدَّيْنِ، وَغَلَبَةِ الرِّجَالِ', translation: "O Allah, I seek refuge in You from anxiety and sorrow, weakness and laziness, cowardice and stinginess, the burden of debt, and being overpowered by people.\n\nWhy Should We Say This?\n\nThis comprehensive supplication was taught by the Prophet ﷺ to seek Allah's protection from emotional distress, laziness, weakness, debt, and oppression. It reminds us to turn to Allah during financial hardship and difficult times.\n\nWhen to Recite\n\n• During financial hardship.\n\n• When burdened by debt.\n\n• During times of anxiety or sadness.\n\n• After Salah.\n\n• During Tahajjud.\n\n• Anytime you seek Allah's help and protection.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ regularly sought refuge in Allah through this du'a, teaching us that both spiritual and worldly difficulties should be taken to Allah first.", reference: 'Sahih al-Bukhari (6369)' },
-            { id: 'dua-for-beneficial-knowledge-pure-provision-accepted-deeds', title: "Du'a for Beneficial Knowledge, Pure Provision and Accepted Deeds", category: 'Daily', arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا', translation: "O Allah, I ask You for beneficial knowledge, pure provision, and deeds that are accepted.\n\nWhy Should We Say This?\n\nThis beautiful supplication combines three of the greatest blessings a believer can ask for: knowledge that benefits, lawful and blessed provision, and righteous deeds that Allah accepts.\n\nWhen to Recite\n\n• After the Fajr prayer.\n\n• Before studying or beginning work.\n\n• When seeking halal provision.\n\n• During Tahajjud.\n\n• Anytime you ask Allah to bless your knowledge, livelihood, and worship.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ would make this supplication, asking Allah to bless him with beneficial knowledge, lawful provision, and accepted deeds—three foundations of a successful believer.", reference: 'Sunan Ibn Majah (925)' }
+            {
+                id: 'durood-ibrahim',
+                title: 'Durood Ibrahim (Ṣalāt al-Ibrāhīmiyyah)',
+                category: 'Durood / Blessings upon Prophet ﷺ',
+                arabic: 'اللهم صلِّ على محمدٍ وعلى آل محمدٍ كما صليت على إبراهيم وعلى آل إبراهيم إنك حميدٌ مجيد، اللهم بارك على محمدٍ وعلى آل محمدٍ كما باركت على إبراهيم وعلى آل إبراهيم إنك حميدٌ مجيد.',
+                translation: 'O Allah, send Your prayers upon Muhammad and the family of Muhammad as You sent prayers upon Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad as You blessed Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious.',
+                reference: 'Required in Salah (Final Tashahhud) | Highly Recommended Throughout the Day'
+            },
+            {
+                id: 'how-to-delete-every-sin',
+                title: "How to Delete Every Sin You've Ever Committed",
+                category: 'Daily',
+                arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ.',
+                translation: 'There is no god worthy of worship except Allah alone, without partner. To Him belongs all dominion and all praise, and He is over all things All-Powerful. There is no might nor power except with Allah. Glory be to Allah, all praise is for Allah, there is no god but Allah, and Allah is the Greatest.',
+                reference: ''
+            },
+            {
+                id: 'night-supplication-for-mercy',
+                title: "Night Supplication for Allah's Mercy",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ رَحْمَتَكَ أَرْجُو فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ، لَا إِلَٰهَ إِلَّا أَنْتَ',
+                translation: 'O Allah, I hope for Your mercy, so do not leave me to myself even for the blink of an eye. Rectify all of my affairs. There is no god worthy of worship except You.',
+                reference: ''
+            },
+            {
+                id: 'more-than-you-ask',
+                title: "Du'a for Allah to Grant More Than You Ask",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ أَعْطِنِي فَوْقَ أَمَلِي، وَأَكْثَرَ مِمَّا أَسْأَلُ',
+                translation: 'O Allah, grant me more than I hope for and more than I ask.',
+                reference: ''
+            },
+            {
+                id: 'choose-what-is-best',
+                title: "Du'a for Allah to Choose What Is Best",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ اخْتَرْ لِي وَلَا تَخْتَرْ عَلَيَّ',
+                translation: 'O Allah, choose what is best for me, and do not leave me to my own choice.',
+                reference: ''
+            },
+            {
+                id: 'quranic-dua-righteous-spouse',
+                title: "Qur'anic Du'a for a Righteous Spouse",
+                category: 'Daily',
+                arabic: 'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ',
+                translation: 'Our Lord, grant us from among our spouses and our offspring comfort to our eyes.\n\nWhy Is This Du\'a So Special?\n\nAllah describes His most beloved servants as Ibad ar-Rahman (The Servants of the Most Merciful) in Surah Al-Furqan. Throughout these verses, Allah praises their character, worship, humility, patience, generosity, and devotion.\n\nThe final quality Allah mentions is this beautiful du\'a:\n\nOur Lord, grant us from our spouses and offspring comfort to our eyes and make us leaders for the righteous.\n\nThis shows that even after a life filled with worship and obedience, the righteous still turned to Allah asking for one of the greatest blessings—a righteous family.\n\nReflection\n\nThe phrase Qurrata A\'yun (Comfort to our eyes) does not simply mean happiness. It refers to the deep peace and joy a believer feels when seeing their spouse and children obey Allah, remain steadfast upon faith, and become a source of goodness in this life and the Hereafter.\n\nThis du\'a teaches us to ask not only for a spouse or children, but for a family that brings us closer to Allah.',
+                reference: 'Surah Al-Furqan (25:74)'
+            },
+            {
+                id: 'dua-for-provision',
+                title: "Du'a for Provision",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ ارْزُقْنِي مِنْ حَيْثُ لَا أَحْتَسِبُ، وَافْتَحْ لِي فُتُوحَ الْعَارِفِينَ',
+                translation: 'O Allah, provide for me from where I do not expect, and open for me the doors of wisdom and understanding.',
+                reference: ''
+            },
+            {
+                id: 'verses-from-surah-ad-duha',
+                title: 'Verses from Surah Ad-Duha',
+                category: 'Daily',
+                arabic: 'وَوَجَدَكَ ضَالًّا فَهَدَىٰ\n\nوَوَجَدَكَ عَائِلًا فَأَغْنَىٰ\n\nفَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ\n\nوَأَمَّا السَّائِلَ فَلَا تَنْهَرْ\n\nوَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ',
+                translation: 'Did He not find you unguided, then guide you? And did He not find you in need, then enrich you? So do not oppress the orphan, nor repel the beggar. But proclaim the blessings of your Lord.',
+                reference: ''
+            },
+            {
+                id: 'night-dhikr-and-supplication',
+                title: 'Night Dhikr and Supplication',
+                category: 'Daily',
+                arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.\n\nسُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ.\n\nوَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ.\n\nرَبِّ اغْفِرْ لِي',
+                translation: 'There is no god worthy of worship except Allah alone, without partner. To Him belongs all dominion and all praise, and He is over all things All-Powerful. Glory be to Allah, all praise is for Allah, there is no god worthy of worship except Allah, Allah is the Greatest, there is no might nor power except with Allah, the Most High, the Most Great. My Lord, forgive me.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ said:\n\nWhoever wakes up during the night and says:\n\nLa ilaha illallahu wahdahu la sharika lah, lahul mulku wa lahul hamdu, wa huwa \u0027ala kulli shay\u0027in qadir. Alhamdu lillah, wa subhanallah, wa la ilaha illallah, wallahu akbar, wa la hawla wa la quwwata illa billah.\n\nThen says:\n\nAllahummaghfir li (O Allah, forgive me),\n\nor makes any supplication, his du\'a will be answered. If he performs wudu and prays, his prayer will be accepted.\n\nWhen to Recite\n\n• Whenever you wake up during the night.\n\n• Before making du\'a.\n\n• Before praying voluntary night prayers (Tahajjud).\n\nReflection\n\nThis beautiful dhikr reminds us that the quiet moments of the night are a special opportunity to remember Allah and turn to Him with sincerity. When you wake during the night, begin by glorifying Allah, seek His forgiveness, and ask Him for your needs with complete trust in His mercy.',
+                reference: 'Sahih al-Bukhari (1154)'
+            },
+            {
+                id: 'short-duas-everyday-needs',
+                title: "Short Du'as for Everyday Needs",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ يَسِّرْ وَلَا تُعَسِّرْ\n\nيَا رَبِّ\n\nحَسْبِيَ اللَّهُ وَنِعْمَ الْوَكِيلُ\n\nرَبَّنَا تَقَبَّلْ مِنَّا\n\nيَا فَتَّاحُ افْتَحْ لِي\n\nرَبِّ زِدْنِي عِلْمًا\n\nلَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ',
+                translation: 'O Allah, make it easy and do not make it difficult.\n\nO my Lord.\n\nAllah is sufficient for me, and He is the best Disposer of affairs.\n\nOur Lord, accept this from us.\n\nO Opener, open the doors of goodness for me.\n\nMy Lord, increase me in knowledge.\n\nThere is no god worthy of worship except You. Glory be to You. Indeed, I have been among the wrongdoers.',
+                reference: ''
+            },
+            {
+                id: 'calling-upon-allah-beautiful-names',
+                title: 'Calling Upon Allah by His Beautiful Names',
+                category: 'Daily',
+                arabic: 'يَا فَتَّاحُ\n\nيَا سَمِيعُ\n\nيَا مُجِيبُ\n\nيَا وَهَّابُ',
+                translation: 'O Opener.\n\nO All-Hearing.\n\nO Responsive One.\n\nO Bestower.',
+                reference: ''
+            },
+            {
+                id: 'hasbunallahu-wa-nimal-wakeel',
+                title: "Hasbunallahu wa Ni'mal Wakeel",
+                category: 'Daily',
+                arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',
+                translation: 'Allah is sufficient for us, and He is the best Disposer of affairs.',
+                reference: ''
+            },
+            {
+                id: 'collection-powerful-duas',
+                title: "Collection of Powerful Du'as",
+                category: 'Daily',
+                arabic: 'لَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ\n\nرَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ\n\nوَلَمْ أَكُنْ بِدُعَائِكَ رَبِّ شَقِيًّا\n\nيَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ\n\nلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+                translation: 'There is no god worthy of worship except You. Glory be to You. Indeed, I have been among the wrongdoers.\n\nMy Lord, I am truly in need of whatever good You send down to me.\n\nMy Lord, I have never been disappointed in calling upon You.\n\nO Ever-Living, O Sustainer, by Your mercy I seek relief. Rectify all of my affairs and do not leave me to myself even for the blink of an eye.\n\nThere is no might nor power except with Allah.',
+                reference: ''
+            },
+            {
+                id: 'hasbi-allah',
+                title: 'Hasbi Allah',
+                category: 'Daily',
+                arabic: 'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ، وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',
+                translation: 'Allah is sufficient for me. There is no god worthy of worship except Him. Upon Him I have placed my trust, and He is the Lord of the Mighty Throne.',
+                reference: ''
+            },
+            {
+                id: 'morning-evening-declaration-faith',
+                title: 'Morning and Evening Declaration of Faith',
+                category: 'Daily',
+                arabic: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ ﷺ نَبِيًّا وَرَسُولًا',
+                translation: 'I am pleased with Allah as my Lord, with Islam as my religion, and with Muhammad ﷺ as my Prophet and Messenger.',
+                reference: ''
+            },
+            {
+                id: 'dua-for-acceptance',
+                title: "Du'a for Acceptance",
+                category: 'Daily',
+                arabic: 'رَبَّنَا تَقَبَّلْ مِنَّا، إِنَّكَ أَنْتَ السَّمِيعُ الْعَلِيمُ',
+                translation: 'Our Lord, accept this from us. Indeed, You are the All-Hearing, the All-Knowing.',
+                reference: ''
+            },
+            {
+                id: 'la-hawla-wa-la-quwwata-illa-billah',
+                title: 'La Hawla wa La Quwwata Illa Billah',
+                category: 'Daily',
+                arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+                translation: 'There is no might and no power except with Allah.',
+                reference: ''
+            },
+            {
+                id: 'structure-of-dua',
+                title: "Structure of Du'a",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنَّ لَكَ الْحَمْدَ، لَا إِلَهَ إِلَّا أَنْتَ، الْمَنَّانُ، بَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ، يَا ذَا الْجَلَالِ وَالْإِكْرَامِ، يَا حَيُّ يَا قَيُّومُ\n\nلَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ\n\nاللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ\n\nاللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ. اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ.',
+                translation: "Meaning:\n\nO Allah, I ask You because all praise belongs to You. There is no god worthy of worship except You, the Bestower of every blessing, the Originator of the heavens and the earth, O Possessor of Majesty and Honor, O Ever-Living, O Sustainer.\n\nMeaning:\n\nThere is no god worthy of worship except You. Glory be to You. Indeed, I have been among the wrongdoers.\n\nMeaning:\n\nO Allah, You are my Lord. There is no deity except You. You created me, and I am Your servant. I uphold Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I acknowledge my sins, so forgive me, for none forgives sins except You.\n\nMeaning:\n\nO Allah, send Your prayers upon Muhammad and the family of Muhammad as You sent prayers upon Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad as You blessed Ibrahim and the family of Ibrahim. Indeed, You are Praiseworthy and Glorious.\n\nA beautiful structure for making du'a is:\n\n1. Begin by praising Allah (Sana) and glorifying Him.\n\n2. Call upon Allah using His Beautiful Names and Attributes.\n\n3. Send blessings (Salawat) upon Prophet Muhammad ﷺ.\n\n4. Confess your shortcomings and seek Allah's forgiveness (Istighfar).\n\n5. Ask Allah sincerely for your needs and hopes.\n\n6. End by sending Salawat upon the Prophet ﷺ once again and place your trust in Allah.",
+                reference: ''
+            },
+            {
+                id: 'hasbiyallahu-la-ilaha-illa-huwa-detailed',
+                title: 'Hasbiyallahu La Ilaha Illa Huwa',
+                category: 'Daily',
+                arabic: 'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ، وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',
+                translation: "Allah is sufficient for me. There is no deity worthy of worship except Him. Upon Him I have placed my trust, and He is the Lord of the Mighty Throne.\n\nWhy Should We Say This?\n\nThis beautiful verse comes directly from the Qur'an (Surah At-Tawbah 9:129). It teaches complete reliance (tawakkul) upon Allah and reminds us that He alone is sufficient for every need.\n\nMeaning of Each Phrase\n\n• حَسْبِيَ اللَّهُ (Hasbiyallahu)\n\nAllah is sufficient for me.\n\nYou declare that Allah alone is enough to protect, guide, help, and support you.\n\n• لَا إِلَٰهَ إِلَّا هُوَ\n\nThere is no deity worthy of worship except Him.\n\nThis affirms Tawhid—the oneness of Allah.\n\n• عَلَيْهِ تَوَكَّلْتُ\n\nUpon Him I have placed my trust.\n\nYou acknowledge that after taking the necessary means, your heart relies completely upon Allah.\n\n• وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ\n\nAnd He is the Lord of the Mighty Throne.\n\nAllah is the Lord of the greatest of all His creations, demonstrating His absolute power, authority, and sovereignty over everything.\n\nWhen Should You Recite It?\n\n• When you feel anxious or worried.\n\n• During hardship or difficulty.\n\n• When facing uncertainty or fear.\n\n• After making du'a and placing your trust in Allah.\n\n• Anytime you wish to renew your reliance upon Allah.\n\nAuthenticity\n\nThis verse is part of the Qur'an, so reciting it is an act of worship.\n\nThere is a narration mentioning reciting it seven times in the morning and evening with the promise that Allah will suffice the person. However, many hadith scholars did not consider that narration to be authentically established. Therefore, it should not be presented as a confirmed Sunnah.\n\nWhat is authentically established is:\n\n• This is a verse from the Qur'an.\n\n• It teaches complete trust (tawakkul) in Allah.\n\n• Reciting Qur'anic verses and remembering Allah is always a virtuous act.\n\nReflection\n\nThis verse is not a formula for obtaining something specific. Rather, it is a powerful declaration of faith, tawḥīd, reliance upon Allah, and confidence that He alone is sufficient for every affair in this life and the next.",
+                reference: ''
+            },
+            {
+                id: 'dua-containing-allahs-greatest-name',
+                title: "The Du'a Containing Allah's Greatest Name",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنَّ لَكَ الْحَمْدَ، لَا إِلَهَ إِلَّا أَنْتَ، الْمَنَّانُ، بَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ، يَا ذَا الْجَلَالِ وَالْإِكْرَامِ، يَا حَيُّ يَا قَيُّومُ',
+                translation: "O Allah, I ask You because all praise belongs to You. There is no deity worthy of worship except You. You are Al-Mannān (The Most Generous Bestower of countless favors), the Originator of the heavens and the earth. O Possessor of Majesty and Honor, O Ever-Living, O Self-Sustaining One.\n\nAfter reciting this, ask Allah sincerely for whatever is good for your religion, your worldly life, and your Hereafter.\n\nMeaning of Each Name\n\nاللَّهُمَّ إِنِّي أَسْأَلُكَ\n\nO Allah, I ask You.\n\nبِأَنَّ لَكَ الْحَمْدَ\n\nBecause all praise belongs to You alone.\n\nلَا إِلَهَ إِلَّا أَنْتَ\n\nThere is no deity worthy of worship except You.\n\nالْمَنَّانُ\n\nThe Most Generous Bestower of countless favors and blessings.\n\nبَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ\n\nThe Originator of the heavens and the earth.\n\nيَا ذَا الْجَلَالِ وَالْإِكْرَامِ\n\nO Possessor of Majesty and Honor.\n\nيَا حَيُّ\n\nO Ever-Living One.\n\nيَا قَيُّومُ\n\nO Self-Sustaining One who sustains all of creation.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ heard a man making this supplication and said:\n\nHe has asked Allah by His Greatest Name. If He is called upon by it, He answers, and if He is asked by it, He gives.\n\nThis authentic narration is recorded in Jami' at-Tirmidhi and Sunan Abi Dawud.\n\nHow to Make Du'a\n\n1. Begin by praising Allah with this supplication.\n\n2. Send blessings (Salawat) upon Prophet Muhammad ﷺ.\n\n3. Ask Allah sincerely for your needs, hopes, and worries.\n\n4. End your du'a by sending Salawat upon the Prophet ﷺ once again.\n\n5. Trust Allah's wisdom, knowing that He answers every sincere du'a in the best way and at the best time.",
+                reference: ''
+            },
+            {
+                id: 'dua-that-makes-difficult-things-easy',
+                title: "The Du'a That Makes Difficult Things Easy",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا',
+                translation: "O Allah, there is no ease except in what You make easy. If You will, You can make even the most difficult matter easy.\n\nWhy Should We Say This?\n\nThis beautiful supplication teaches us that true ease comes only from Allah. No matter how difficult a situation may seem, Allah has the power to make it simple. It reminds us to rely upon Him instead of our own strength and to ask Him to remove hardship and replace it with ease.\n\nWhen to Recite\n\n• Before an exam or interview.\n\n• Before beginning a difficult task.\n\n• During times of stress or anxiety.\n\n• When facing hardship or uncertainty.\n\n• Anytime you ask Allah to make something easy.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ would make this supplication whenever he faced a difficult matter, teaching us to turn to Allah first whenever we seek ease.",
+                reference: 'Sahih Ibn Hibban (2427)'
+            },
+            {
+                id: 'dua-for-difficult-and-seemingly-impossible-matters',
+                title: 'Dua for Difficult and Seemingly Impossible Matters',
+                category: 'Daily',
+                arabic: 'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ، وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',
+                translation: "Allah is sufficient for me. There is none worthy of worship except Him. I have placed my trust in Him, and He is the Lord of the Majestic Throne.\n\nWhy Should We Say This?\n\nThis verse from the Qur'an is a declaration of complete trust (tawakkul) in Allah. It reminds us that no matter how impossible a situation may seem, Allah alone is sufficient for every need. When we rely upon Him sincerely, we place our affairs in the hands of the One who has complete power over all things.\n\nWhen to Recite\n\n• During hardship or difficulty.\n\n• When facing something that seems impossible.\n\n• When feeling anxious, afraid, or overwhelmed.\n\n• After making du'a and placing your trust in Allah.\n\n• Anytime you wish to renew your reliance upon Allah.\n\nWhat Allah Teaches Us\n\nThis supplication comes directly from the Qur'an (Surah At-Tawbah 9:129). It teaches believers to place complete trust in Allah, knowing that He alone is sufficient and that He is the Lord of the Mighty Throne.",
+                reference: ''
+            },
+            {
+                id: 'powerful-dua-seeking-allahs-forgiveness',
+                title: "Powerful Du'a for Seeking Allah's Forgiveness",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ، دِقَّهُ وَجِلَّهُ، وَأَوَّلَهُ وَآخِرَهُ، وَعَلَانِيَتَهُ وَسِرَّهُ',
+                translation: "O Allah, forgive all my sins—the small and the great, the first and the last, the public and the private.\n\nWhy Should We Say This?\n\nThe Prophet Muhammad ﷺ taught this beautiful supplication to seek Allah's complete forgiveness. It asks Allah to forgive every sin, regardless of its size, when it was committed, or whether it was done openly or in secret.\n\nSeeking forgiveness (istighfar) is one of the greatest acts of worship. Allah promises forgiveness, mercy, and relief for those who sincerely repent and turn back to Him.\n\nBenefits of Seeking Forgiveness\n\n• It brings you closer to Allah.\n\n• It removes the burden of sins.\n\n• It brings peace and tranquility to the heart.\n\n• It is a means for Allah's mercy and blessings.\n\n• It opens the doors to relief and goodness by Allah's permission.\n\nWhen to Recite\n\n• After the obligatory prayers.\n\n• During Tahajjud.\n\n• In Sujood.\n\n• During the last third of the night.\n\n• Whenever seeking Allah's forgiveness.\n\n• Anytime throughout the day.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ would frequently seek Allah's forgiveness and encouraged his followers to repent sincerely. This supplication asks Allah to forgive every type of sin, making it one of the comprehensive du'as for repentance.\n\nTrust that Allah hears every sincere repentance. No sin is too great for His mercy when a servant turns back to Him with a sincere heart.",
+                reference: ''
+            },
+            {
+                id: 'sayyid-al-istighfar',
+                title: 'Sayyid al-Istighfar (Chief Supplication for Forgiveness)',
+                category: 'Repentance & Forgiveness',
+                arabic: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلقتني وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي، فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
+                translation: 'O Allah, You are my Lord. There is no god except You. You created me, and I am Your servant. I uphold Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I acknowledge my sins, so forgive me, for none forgives sins except You.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ said:\n\nWhoever recites this supplication during the day with firm faith in it and dies before evening will be among the people of Paradise. And whoever recites it during the night with firm faith in it and dies before morning will be among the people of Paradise.\n\nWhen to Recite\n\n• Every morning.\n\n• Every evening.\n\n• Whenever seeking Allah\'s forgiveness with sincerity.',
+                reference: 'Sahih al-Bukhari (6306)'
+            },
+            {
+                id: 'allah-brings-hearts-together',
+                title: 'Allah Brings Hearts Together',
+                category: 'Daily',
+                arabic: 'وَأَلَّفَ بَيْنَ قُلُوبِهِمْ ۚ لَوْ أَنفَقْتَ مَا فِي الْأَرْضِ جَمِيعًا مَّا أَلَّفْتَ بَيْنَ قُلُوبِهِمْ وَلَٰكِنَّ اللَّهَ أَلَّفَ بَيْنَهُمْ ۚ إِنَّهُ عَزِيزٌ حَكِيمٌ',
+                translation: "And He brought their hearts together. If you had spent all that is on the earth, you could not have brought their hearts together; but Allah brought them together. Indeed, He is All-Mighty, All-Wise.\n\nWhy Should We Reflect on This Verse?\n\nThis beautiful verse reminds us that the hearts of people are in Allah's Hands. Love, affection, reconciliation, and unity are blessings that only Allah can place between people. No amount of wealth, effort, or influence can unite hearts if Allah does not will it.\n\nIf you are praying for a righteous marriage, reconciliation, family harmony, or stronger relationships, this verse is a powerful reminder to place your trust in Allah, for He alone joins hearts together.\n\nWhen to Recite\n\n• When making du'a for marriage.\n\n• When praying for love and affection between spouses.\n\n• When asking Allah to reconcile hearts.\n\n• During Tahajjud.\n\n• After Salah while making personal du'a.\n\n• Anytime you seek unity, peace, and harmony.\n\nReflection\n\nAllah is the One who turns hearts. When something seems impossible between people, remember that what people cannot achieve, Allah can accomplish with a single command. Trust His wisdom, ask Him sincerely, and leave the outcome to Him.",
+                reference: 'Surah Al-Anfal (8:63)'
+            },
+            {
+                id: 'dua-of-prophet-nuh',
+                title: "The Du'a of Prophet Nuh (AS)",
+                category: 'Daily',
+                arabic: 'رَبِّ إِنِّي مَغْلُوبٌ فَانْتَصِرْ',
+                translation: "My Lord, I am overpowered, so grant me victory.\n\nWhy Should We Say This?\n\nThis is the heartfelt supplication of Prophet Nuh (Noah) عليه السلام when his people persistently rejected his message despite his patience and years of calling them to Allah. Feeling completely overwhelmed, he turned to Allah alone for help, saying, My Lord, I am overpowered, so grant me victory.\n\nThis du'a teaches us that when we have exhausted our efforts and feel helpless, we should place our trust in Allah and seek His help, for He is the Best of Helpers.\n\nWhen to Recite\n\n• When you feel overwhelmed.\n\n• During hardship or oppression.\n\n• When facing trials beyond your control.\n\n• During Tahajjud.\n\n• Anytime you sincerely seek Allah's help and support.\n\nReflection\n\nThere are moments when words fail and the heart feels exhausted. This short but powerful du'a reminds us that we do not face our struggles alone. Just as Allah answered Prophet Nuh (AS), He hears every sincere call made with patience, trust, and reliance upon Him.",
+                reference: 'Surah Al-Qamar (54:10)'
+            },
+            {
+                id: 'salat-al-istikharah',
+                title: 'Salat al-Istikharah (Prayer for Guidance)',
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ، فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ، وَتَعْلَمُ وَلَا أَعْلَمُ، وَأَنْتَ عَلَّامُ الْغُيُوبِ.\n\nاللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ (mention your matter) خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي، فَاقْدُرْهُ لِي، وَيَسِّرْهُ لِي، ثُمَّ بَارِكْ لِي فِيهِ.\n\nوَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي، فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ، وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ، ثُمَّ أَرْضِنِي بِهِ.',
+                translation: "When faced with an important decision, seek Allah's guidance through Salat al-Istikharah before making your choice.\n\nHow to Perform Salat al-Istikharah\n\n1. Make a sincere intention in your heart to seek Allah's guidance.\n\n2. Pray two rak'ahs of voluntary (nafl) prayer.\n\n• In the first rak'ah, recite Surah Al-Fatihah followed by any portion of the Qur'an.\n\n• In the second rak'ah, recite Surah Al-Fatihah followed by any portion of the Qur'an.\n\n(Some scholars recommend reciting Surah Al-Kafirun in the first rak'ah and Surah Al-Ikhlas in the second, but this is not an authentic requirement.)\n\n3. After completing the prayer, recite the Du'a of Istikharah.\n\nMeaning\n\nO Allah, I seek Your guidance through Your knowledge, and I seek ability through Your power, and I ask You from Your immense bounty. Indeed, You have power while I have none, You know while I do not know, and You are the Knower of the unseen.\n\nO Allah, if You know that this matter (mention your decision) is good for my religion, my livelihood, and the outcome of my affairs, then decree it for me, make it easy for me, and bless it for me.\n\nBut if You know that this matter is bad for my religion, my livelihood, and the outcome of my affairs, then turn it away from me and turn me away from it, and decree for me what is good wherever it may be, then make me content with it.\n\nImportant Notes\n\n• Pray with sincerity and trust in Allah.\n\n• Mention your specific decision during the du'a.\n\n• There is no authentic requirement to see a dream after Istikharah.\n\n• After making Istikharah, proceed with the option that becomes clear while trusting Allah's decree.\n\n• If you remain uncertain, you may repeat Istikharah. There is no authentic evidence limiting it to seven times.",
+                reference: "Jabir ibn Abdullah (RA) reported that the Messenger of Allah ﷺ used to teach his companions Istikharah in all matters just as he taught them a surah from the Qur'an.\n\nSahih al-Bukhari (1166)"
+            },
+            {
+                id: 'surah-al-falaq',
+                title: 'Surah Al-Falaq (The Daybreak)',
+                category: 'Daily',
+                arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ\n\nمِنْ شَرِّ مَا خَلَقَ\n\nوَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ\n\nوَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ\n\nوَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ',
+                translation: "Say, I seek refuge in the Lord of the daybreak,\n\nfrom the evil of what He has created,\n\nand from the evil of the darkness when it settles,\n\nand from the evil of those who blow on knots,\n\nand from the evil of an envier when he envies.\n\nWhy Should We Recite Surah Al-Falaq?\n\nSurah Al-Falaq is one of the two Mu'awwidhatayn (the chapters of refuge) revealed for seeking Allah's protection. It teaches us to seek refuge in Allah from every form of evil, including the evil eye, envy (hasad), magic (sihr), darkness, and all harmful things.\n\nThe Prophet ﷺ regularly recited Surah Al-Falaq together with Surah An-Nas and Surah Al-Ikhlas for protection, especially in the morning, evening, and before sleeping.\n\nWhen to Recite\n\n• Every morning and evening as part of the daily adhkar.\n\n• Before sleeping.\n\n• When seeking Allah's protection from the evil eye, envy, magic, and all forms of harm.\n\n• Whenever you wish to seek refuge in Allah.",
+                reference: 'Surah Al-Falaq (Chapter 113)\n\nSahih al-Bukhari\n\nSahih Muslim'
+            },
+            {
+                id: 'dua-for-mercy-and-right-guidance',
+                title: "Du'a for Mercy and Right Guidance",
+                category: 'Daily',
+                arabic: 'رَبَّنَا آتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا',
+                translation: "Our Lord, grant us mercy from Yourself and prepare for us guidance and the right course in our affairs.\n\nWhy Should We Say This?\n\nThis is the supplication of the People of the Cave (Ashab al-Kahf) when they sought refuge in Allah. They turned to Him, asking for His mercy and for guidance in making the right decisions during a time of hardship and uncertainty.\n\nThis du'a reminds us to seek Allah's help whenever we face difficult choices, challenges, or situations beyond our control. It teaches us that true guidance, wisdom, and success come only from Allah.\n\nWhen to Recite\n\n• When facing an important decision.\n\n• During times of hardship or uncertainty.\n\n• When seeking Allah's guidance and mercy.\n\n• During Tahajjud.\n\n• After Salah while making personal du'a.\n\n• Anytime you ask Allah to guide your affairs.\n\nReflection\n\nLike the People of the Cave, every believer will face moments of uncertainty. This du'a teaches us to place our trust in Allah, asking Him not only for His mercy but also for the wisdom and guidance to choose the path that pleases Him.",
+                reference: 'Surah Al-Kahf (18:10)'
+            },
+            {
+                id: 'dua-for-halal-provision-and-independence',
+                title: "Du'a for Halal Provision and Independence",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ',
+                translation: "O Allah, make what You have made lawful sufficient for me so that I have no need for what You have forbidden, and enrich me through Your bounty so that I need no one besides You.\n\nWhy Should We Say This?\n\nThis beautiful supplication was taught by the Prophet ﷺ. It asks Allah to bless us with lawful (halal) provision, protect us from the unlawful (haram), and make us independent through His bounty rather than dependent on others. It reminds us that true wealth is not merely having more money, but being content with what Allah provides and relying upon Him alone.\n\nWhen to Recite\n\n• When seeking halal provision.\n\n• During financial hardship.\n\n• When burdened by debt.\n\n• When asking Allah to increase your sustenance.\n\n• After Salah while making personal du'a.\n\n• During Tahajjud.\n\n• On Fridays or at any time when making sincere du'a.\n\nReflection\n\nEvery provision comes from Allah alone. This du'a teaches us to seek blessings through lawful means, avoid the unlawful, and place our complete trust in Allah, knowing that He is Al-Ghani (The Self-Sufficient) and Ar-Razzaq (The Provider).\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ taught this supplication to seek Allah's help in attaining lawful provision and freedom from dependence on others. It is a beautiful reminder that Allah's bounty is sufficient for every believer.",
+                reference: 'Jami\' at-Tirmidhi (3563)'
+            },
+            {
+                id: 'dua-for-knowledge-and-wisdom',
+                title: "Du'a for Knowledge and Wisdom",
+                category: 'Daily',
+                arabic: 'سُبْحَانَكَ لَا عِلْمَ لَنَا إِلَّا مَا عَلَّمْتَنَا ۖ إِنَّكَ أَنْتَ الْعَلِيمُ الْحَكِيمُ',
+                translation: "Glory be to You. We have no knowledge except what You have taught us. Indeed, You are the All-Knowing, the All-Wise.\n\nWhy Should We Say This?\n\nThis beautiful Qur'anic supplication reminds us that all knowledge comes from Allah alone. It teaches humility, encouraging us to seek beneficial knowledge, wisdom, understanding, and success through His guidance. Whenever we study, learn something new, or prepare for an exam, we should remember that true understanding is a blessing from Allah.\n\nWhen to Recite\n\n• Before studying.\n\n• Before an exam or interview.\n\n• Before reading the Qur'an.\n\n• When seeking beneficial knowledge.\n\n• Before attending classes or lectures.\n\n• Anytime you ask Allah to increase you in knowledge and wisdom.\n\nReflection\n\nKnowledge is one of Allah's greatest blessings. This du'a reminds us that no matter how much we learn, our knowledge is only what Allah has taught us. It encourages humility, gratitude, and reliance upon Allah while striving to learn and grow.",
+                reference: 'Surah Al-Baqarah (2:32)'
+            },
+            {
+                id: 'dua-for-an-easy-reckoning',
+                title: "Du'a for an Easy Reckoning",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ حَاسِبْنِي حِسَابًا يَسِيرًا',
+                translation: "O Allah, grant me an easy reckoning.\n\nWhy Should We Say This?\n\nThis beautiful supplication was taught by the Prophet ﷺ. It is a du'a asking Allah to make our account on the Day of Judgment easy, forgiving our shortcomings and treating us with His mercy.\n\nEvery believer hopes to meet Allah with a light and easy reckoning, and this du'a reminds us to prepare for the Hereafter while seeking His forgiveness and compassion.\n\nWhen to Recite\n\n• During your daily du'a.\n\n• After Salah.\n\n• During Tahajjud.\n\n• When remembering the Hereafter.\n\n• Anytime you ask Allah for His mercy and forgiveness.\n\nWhat the Prophet ﷺ Taught\n\nWhen the Prophet ﷺ made this supplication, Sayyidah Aishah (RA) asked him, What is an easy reckoning?\n\nHe replied:\n\nThat Allah looks into a person's record and overlooks their sins. Whoever is taken to account in detail on that Day will be doomed.",
+                reference: 'Musnad Ahmad\n\nAlso reported in Sahih al-Bukhari and Sahih Muslim regarding the explanation of an easy reckoning.'
+            },
+            {
+                id: 'dua-for-rizq-provision',
+                title: "Du'a for Rizq (Provision)",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ وَرَحْمَتِكَ، فَإِنَّهُ لَا يَمْلِكُهَا إِلَّا أَنْتَ',
+                translation: "O Allah, I ask You for Your bounty and Your mercy, for indeed no one possesses them except You.\n\nWhy Should We Say This?\n\nThis beautiful supplication asks Allah to bless us with His bounty (fadl) and mercy (rahmah). Every provision, blessing, and opportunity comes from Allah alone. By reciting this du'a, we acknowledge that no one can grant true sustenance except Him.\n\nWhen to Recite\n\n• When seeking halal provision.\n\n• During financial hardship.\n\n• After Salah while making personal du'a.\n\n• During Tahajjud.\n\n• Before starting work or business.\n\n• Anytime you ask Allah to increase your sustenance and blessings.\n\nReflection\n\nTrue rizq is not limited to wealth. It includes good health, beneficial knowledge, righteous family, inner peace, barakah, and every blessing that Allah grants. This du'a reminds us to seek all forms of provision from the One who owns every treasure.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ taught this supplication to ask Allah for His bounty and mercy, recognizing that all provision and blessings belong to Him alone.",
+                reference: 'Sunan Abi Dawud (1694)'
+            },
+            {
+                id: 'islamic-reminder-not-a-dua',
+                title: 'Islamic Reminder (Not a Du\'a)',
+                category: 'Daily',
+                arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ',
+                translation: "This is a reminder (naseehah), not a du'a from the Qur'an or Sunnah.\n\nAlways strive to become a better Muslim.\n\nPray your five daily prayers on time.\n\nRepent sincerely whenever you fall into sin.\n\nRead and reflect upon the Qur'an regularly.\n\nAvoid judging others, for Allah alone knows what is in every heart.\n\nFollow the teachings of the Qur'an and the authentic Sunnah.\n\nAlways turn back to Allah, no matter how far you feel you have strayed. His mercy is greater than your sins.\n\nDo not let this temporary world distract you from your eternal home in the Hereafter.\n\nLive by the testimony:\n\nThere is no deity worthy of worship except Allah.\n\nStrive to avoid sin as much as you can. If you do fall into sin, repent sincerely and return to Allah without delay.\n\nReflection\n\nEvery day is an opportunity to grow closer to Allah. No one is perfect, but the best of those who sin are those who sincerely repent. Keep your heart attached to Allah, remain steadfast in worship, and never lose hope in His mercy.\n\nDu'a\n\nMay Allah forgive our sins, accept our repentance, guide us to the straight path, have mercy upon us, and grant us and the entire Ummah Jannatul Firdaus. Ameen.",
+                reference: ''
+            },
+            {
+                id: 'salat-al-tasbih',
+                title: 'Salat al-Tasbih',
+                category: 'Daily',
+                arabic: 'سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَٰهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ',
+                translation: "Scholarly Note\n\nSalat al-Tasbih is a voluntary (nafl) prayer that has been mentioned in several hadith narrations. Scholars have differed regarding the authenticity of these narrations. Some considered them acceptable and recommended this prayer, while others considered them weak. For this reason, Salat al-Tasbih is not regarded by all scholars as an established Sunnah.\n\nThe Tasbih\n\nGlory be to Allah, all praise is for Allah, there is no deity worthy of worship except Allah, and Allah is the Greatest.\n\nHow It Is Commonly Performed\n\nSalat al-Tasbih consists of four rak'ahs (either prayed together or as two sets of two rak'ahs according to scholarly opinion).\n\nThe tasbih is recited 75 times in each rak'ah, totaling 300 recitations.\n\nIn each rak'ah:\n\n• 15 times after Surah Al-Fatihah and another surah.\n\n• 10 times during Ruku after the regular dhikr.\n\n• 10 times after rising from Ruku.\n\n• 10 times in the first Sujud after the regular dhikr.\n\n• 10 times while sitting between the two Sujud.\n\n• 10 times in the second Sujud after the regular dhikr.\n\n• 10 times before standing for the next rak'ah (or before Tashahhud in the final rak'ah).\n\nWhen to Pray\n\nThere is no authentic, fixed time for Salat al-Tasbih.\n\nThose scholars who consider it recommended generally state that it may be prayed whenever voluntary prayers are permitted, avoiding the prohibited prayer times.",
+                reference: 'Sunan Abi Dawud (1297)\n\nSunan Ibn Majah (1387)\n\nScholars differ regarding the authenticity of these narrations.'
+            },
+            {
+                id: 'dua-calling-upon-allah-by-his-oneness',
+                title: "Du'a Calling Upon Allah by His Oneness",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنِّي أَشْهَدُ أَنَّكَ أَنْتَ اللَّهُ، لَا إِلَهَ إِلَّا أَنْتَ، الْأَحَدُ الصَّمَدُ، الَّذِي لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ',
+                translation: "O Allah, I ask You, bearing witness that You are Allah. There is no deity worthy of worship except You, the One, the Eternal Refuge upon whom all creation depends. You neither beget nor were You begotten, and there is none comparable to You.\n\nWhy Should We Say This?\n\nThis beautiful supplication calls upon Allah by His perfect Names and Attributes mentioned in Surah Al-Ikhlas. It begins by affirming Allah's absolute Oneness before asking Him for one's needs.\n\nCalling upon Allah through His Beautiful Names is one of the greatest etiquettes of making du'a.\n\nWhat the Prophet ﷺ Said\n\nThe Prophet ﷺ heard a man making this supplication and said:\n\nHe has asked Allah by His Greatest Name, by which if He is called upon, He answers, and if He is asked, He gives.\n\nWhen to Recite\n\n• Before making personal du'a.\n\n• During Tahajjud.\n\n• After Salah.\n\n• Whenever asking Allah for something important.\n\n• Anytime you wish to call upon Allah through His Beautiful Names.\n\nReflection\n\nBefore asking Allah for your needs, praise Him and affirm His perfect Names and Attributes. This du'a reminds us that Allah is the One, the Eternal Refuge, and the only One worthy of worship. Every hope, fear, and request ultimately returns to Him.",
+                reference: 'Sunan at-Tirmidhi (3475)'
+            },
+            {
+                id: 'dua-for-relief-from-distress',
+                title: "Du'a for Relief from Distress",
+                category: 'Daily',
+                arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ\n\nلَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ\n\nلَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ',
+                translation: "There is no deity worthy of worship except Allah, the Most Great, the Most Forbearing.\n\nThere is no deity worthy of worship except Allah, Lord of the Magnificent Throne.\n\nThere is no deity worthy of worship except Allah, Lord of the heavens, Lord of the earth, and Lord of the Noble Throne.\n\nWhy Should We Say This?\n\nThis beautiful supplication was taught by the Prophet ﷺ to be recited during times of distress, anxiety, and hardship. It begins by glorifying Allah and affirming His greatness before asking Him for relief. It reminds the believer that every difficulty is under Allah's control and that true relief comes only from Him.\n\nWhen to Recite\n\n• During times of hardship or distress.\n\n• When feeling overwhelmed or anxious.\n\n• During Tahajjud.\n\n• After Salah while making personal du'a.\n\n• Anytime you seek Allah's comfort, mercy, and relief.\n\nWhat the Prophet ﷺ Taught\n\nWhenever the Prophet ﷺ was faced with distress or a difficult matter, he would recite this supplication, turning completely to Allah with praise and trust.\n\nReflection\n\nBefore asking Allah for relief, this du'a teaches us to glorify Him and remember His Majesty. When the heart recognizes Allah's greatness, worries become smaller, and hope in His mercy becomes greater.",
+                reference: 'Sahih al-Bukhari (6346)\n\nAlso narrated in Sahih Muslim.'
+            },
+            {
+                id: 'dua-for-relief-from-debt-and-financial-stress',
+                title: "Du'a for Relief from Debt and Financial Stress",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْجُبْنِ وَالْبُخْلِ، وَضَلَعِ الدَّيْنِ، وَغَلَبَةِ الرِّجَالِ',
+                translation: "O Allah, I seek refuge in You from anxiety and sorrow, weakness and laziness, cowardice and stinginess, the burden of debt, and being overpowered by people.\n\nWhy Should We Say This?\n\nThis comprehensive supplication was taught by the Prophet ﷺ to seek Allah's protection from emotional distress, laziness, weakness, debt, and oppression. It reminds us to turn to Allah during financial hardship and difficult times.\n\nWhen to Recite\n\n• During financial hardship.\n\n• When burdened by debt.\n\n• During times of anxiety or sadness.\n\n• After Salah.\n\n• During Tahajjud.\n\n• Anytime you seek Allah's help and protection.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ regularly sought refuge in Allah through this du'a, teaching us that both spiritual and worldly difficulties should be taken to Allah first.",
+                reference: 'Sahih al-Bukhari (6369)'
+            },
+            {
+                id: 'dua-for-beneficial-knowledge-pure-provision-accepted-deeds',
+                title: "Du'a for Beneficial Knowledge, Pure Provision and Accepted Deeds",
+                category: 'Daily',
+                arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا',
+                translation: "O Allah, I ask You for beneficial knowledge, pure provision, and deeds that are accepted.\n\nWhy Should We Say This?\n\nThis beautiful supplication combines three of the greatest blessings a believer can ask for: knowledge that benefits, lawful and blessed provision, and righteous deeds that Allah accepts.\n\nWhen to Recite\n\n• After the Fajr prayer.\n\n• Before studying or beginning work.\n\n• When seeking halal provision.\n\n• During Tahajjud.\n\n• Anytime you ask Allah to bless your knowledge, livelihood, and worship.\n\nWhat the Prophet ﷺ Taught\n\nThe Prophet ﷺ would make this supplication, asking Allah to bless him with beneficial knowledge, lawful provision, and accepted deeds—three foundations of a successful believer.",
+                reference: 'Sunan Ibn Majah (925)'
+            }
         ];
 
         async function init() {
+            applySavedTheme();
             const dbReady = await db.init();
             await loadDuas(dbReady);
             setupEventListeners();
@@ -264,19 +976,29 @@
 
         async function loadDuas(dbReady) {
             let data = [];
+
             if (dbReady) {
                 data = await db.getAll();
+
                 const existingIds = new Set((data || []).map(item => item.id));
                 let addedMissing = false;
+
                 for (const sample of SAMPLE_DUAS) {
                     if (!existingIds.has(sample.id)) {
                         await db.add(sample);
                         addedMissing = true;
                     }
                 }
-                if (data.length === 0 || addedMissing) data = await db.getAll();
+
+                if (data.length === 0 || addedMissing) {
+                    data = await db.getAll();
+                }
             }
-            if (data.length === 0) data = SAMPLE_DUAS;
+
+            if (data.length === 0) {
+                data = SAMPLE_DUAS;
+            }
+
             allDuas = data;
             renderDuas(allDuas);
         }
@@ -287,11 +1009,12 @@
                 duaList.innerHTML = '<div class="empty-state">No duas found. Click + to add one.</div>';
                 return;
             }
+
             duaList.innerHTML = duas.map((dua, idx) => `
                 <div class="dua-card" onclick="viewDua('${dua.id}')" style="animation-delay: ${idx * 50}ms">
                     <div class="dua-category">${dua.category || 'Daily'}</div>
                     <div class="dua-title">${dua.title}</div>
-                    <div class="dua-preview">${(dua.translation || '').replace(/\n/g, ' | ')}</div>
+                    <div class="dua-preview">${dua.translation.replace(/\n/g, ' | ')}</div>
                 </div>
             `).join('');
         }
@@ -299,6 +1022,7 @@
         function viewDua(id) {
             currentDua = allDuas.find(d => d.id === id);
             if (!currentDua) return;
+
             document.getElementById('detailTitle').textContent = currentDua.title;
             document.getElementById('detailTitleFull').textContent = currentDua.title;
             document.getElementById('detailCategory').textContent = currentDua.category || 'Daily';
@@ -318,8 +1042,18 @@
             document.getElementById('addBtn').style.display = 'block';
             currentDua = null;
         }
-        function openModal() { editingId = null; document.getElementById('modalTitle').textContent = 'Add New Dua'; document.getElementById('duaForm').reset(); document.getElementById('modalOverlay').classList.add('active'); }
-        function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+        function openModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Add New Dua';
+            document.getElementById('duaForm').reset();
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
         function editDua() {
             if (!currentDua) return;
             editingId = currentDua.id;
@@ -331,16 +1065,20 @@
             document.getElementById('formReference').value = currentDua.reference || '';
             document.getElementById('modalOverlay').classList.add('active');
         }
+
         async function deleteDua() {
             if (!currentDua) return;
             if (!confirm('Delete this dua?')) return;
+
             await db.delete(currentDua.id);
             allDuas = allDuas.filter(d => d.id !== currentDua.id);
             renderDuas(allDuas);
             closeDetail();
         }
+
         async function handleFormSubmit(e) {
             e.preventDefault();
+
             const dua = {
                 title: document.getElementById('formTitle').value,
                 category: document.getElementById('formCategory').value,
@@ -348,6 +1086,7 @@
                 translation: document.getElementById('formTranslation').value,
                 reference: document.getElementById('formReference').value
             };
+
             if (editingId) {
                 await db.update(editingId, dua);
                 allDuas = allDuas.map(d => d.id === editingId ? { ...dua, id: editingId } : d);
@@ -355,27 +1094,65 @@
                 const added = await db.add(dua);
                 allDuas.push(added);
             }
+
             renderDuas(allDuas);
             closeModal();
         }
+
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('duaTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                isDarkTheme = true;
+            }
+            updateThemeButton();
+        }
+
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('dark-theme', isDarkTheme);
+            localStorage.setItem('duaTheme', isDarkTheme ? 'dark' : 'light');
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            btn.textContent = isDarkTheme ? '☀️' : '🌙';
+            btn.title = isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode';
+        }
+
         function setupEventListeners() {
+            document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
             document.getElementById('addBtn').addEventListener('click', openModal);
             document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
             document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
-            document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target === document.getElementById('modalOverlay')) closeModal(); });
+            document.getElementById('modalOverlay').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('modalOverlay')) closeModal();
+            });
             document.getElementById('backBtn').addEventListener('click', closeDetail);
             document.getElementById('closeDetailBtn').addEventListener('click', closeDetail);
             document.getElementById('editBtn').addEventListener('click', editDua);
             document.getElementById('deleteBtn').addEventListener('click', deleteDua);
-            document.getElementById('copyArabicBtn').addEventListener('click', () => { navigator.clipboard.writeText(currentDua.arabic); alert('Copied!'); });
-            document.getElementById('copyTranslationBtn').addEventListener('click', () => { navigator.clipboard.writeText(currentDua.translation); alert('Copied!'); });
+            document.getElementById('copyArabicBtn').addEventListener('click', () => {
+                navigator.clipboard.writeText(currentDua.arabic);
+                alert('Copied!');
+            });
+            document.getElementById('copyTranslationBtn').addEventListener('click', () => {
+                navigator.clipboard.writeText(currentDua.translation);
+                alert('Copied!');
+            });
             document.getElementById('duaForm').addEventListener('submit', handleFormSubmit);
             document.getElementById('mainSearchInput').addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
-                const filtered = allDuas.filter(d => d.title.toLowerCase().includes(query) || d.translation.toLowerCase().includes(query));
+                const filtered = allDuas.filter(d =>
+                    d.title.toLowerCase().includes(query) ||
+                    d.translation.toLowerCase().includes(query)
+                );
                 renderDuas(filtered);
             });
         }
+
         init();
     </script>
 </body>
