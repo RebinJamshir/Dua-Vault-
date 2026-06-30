@@ -761,10 +761,18 @@
 
             if (dbReady) {
                 data = await db.getAll();
-                if (data.length === 0) {
-                    for (const sample of SAMPLE_DUAS) {
+
+                const existingIds = new Set((data || []).map(item => item.id));
+                let addedMissing = false;
+
+                for (const sample of SAMPLE_DUAS) {
+                    if (!existingIds.has(sample.id)) {
                         await db.add(sample);
+                        addedMissing = true;
                     }
+                }
+
+                if (data.length === 0 || addedMissing) {
                     data = await db.getAll();
                 }
             }
